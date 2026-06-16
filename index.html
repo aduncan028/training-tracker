@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#0d1117" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Training" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="icon-192.png" />
+<title>Andrew's Training Tracker</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: #0d1117; color: #c9d1d9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; overscroll-behavior: none; }
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+  input, button, textarea { font-family: inherit; }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  textarea { resize: vertical; }
+  #root { min-height: 100vh; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useCallback, useRef, useMemo } = React;
+
+const C = {
+  bg: "#0d1117", card: "#161b22", border: "#30363d", accent: "#58a6ff",
+  red: "#f85149", green: "#3fb950", orange: "#d29922", purple: "#bc8cff",
+  yellow: "#e3b341", text: "#c9d1d9", muted: "#8b949e", white: "#f0f6fc",
+};
+
+const SBP_COLORS = [
+  { label: "Red", color: "#e53935", range: "V0-2" },
+  { label: "Green", color: "#43a047", range: "V1-3" },
+  { label: "Purple", color: "#8e24aa", range: "V2-4" },
+  { label: "Orange", color: "#fb8c00", range: "V3-5" },
+  { label: "Black", color: "#333333", range: "V4-6" },
+  { label: "Blue", color: "#1e88e5", range: "V5-7" },
+  { label: "Pink", color: "#ec407a", range: "V6-8" },
+  { label: "White", color: "#e0e0e0", range: "V8+" },
+];
+
+/* Week helpers */
+function getMondayOf(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+function fmtWeek(d) {
+  return d.toISOString().slice(0, 10);
+}
+function getCurrentWeekKey() {
+  return fmtWeek(getMondayOf(new Date()));
+}
+function addDays(date, n) {
+  const d = new Date(date); d.setDate(d.getDate() + n); return d;
+}
+function displayWeekLabel(wk) {
+  const start = new Date(wk + "T00:00:00");
+  const end = addDays(start, 6);
+  const fmt = (d) => `${d.getMonth()+1}/${d.getDate()}`;
+  return `${fmt(start)} - ${fmt(end)}`;
+}
+
+/* localStorage hooks */
+const STORAGE_PREFIX = "andrew-tracker:";
+
+function loadWeek(weekKey) {
+  try {
+    const raw = localStorage.getItem(STORAGE_PREFIX + weekKey);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+function saveWeek(weekKey, data) {
+  try {
+    localStorage.setItem(STORAGE_PREFIX + weekKey, JSON.stringify(data));
+    return true;
+  } catch { return false; }
+}
+function listAllWeeks() {
+  const weeks = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(STORAGE_PREFIX)) weeks.push(k.replace(STORAGE_PREFIX, ""));
+  }
+  return weeks.sort().reverse();
+}
+
+/* Components */
+function Timer({ seconds, label, color = C.accent }) {
+  const [left, setLeft] = useState(seconds);
+  const [running, setRunning] = useState(false);
+  const [done, setDone] = useState(false);
+  const iv = useRef(null);
+  useEffect(() => {
+    if (running && left > 0) {
+      iv.current = setInterval(() => setLeft(l => {
+        if (l <= 1) { clearInterval(iv.current); setRunning(false); setDone(true);
+          try { navigator.vibrate && navigator.vibrate(200); } catch{}
+          return 0; }
+        return l - 1;
+      }), 1000);
+    }
+    return () => clearInterval(iv.current);
+  }, [running, left]);
+  const reset = (e) => { e?.stopPropagation(); setLeft(seconds); setRunning(false); setDone(false); };
+  const toggle = () => { if (done) reset(); else setRunning(!running); };
+  const m = Math.floor(left / 60), s = left % 60;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      <button onClick={toggle} style={{ background: done ? C.green : running ? C.red : C.card, border: `1px solid ${done ? C.green : running ? C.red : C.border}`, color: C.white, borderRadius: 6, padding: "4px 8px", fontSize: 11, fontWeight: 700, cursor: "pointer", fontFamily: "monospace", minWidth: 44 }}>
+        {done ? "✓" : `${m}:${s.toString().padStart(2, "0")}`}
+      </button>
+      {label && <span style={{ fontSize: 9, color: C.muted }}>{label}</span>}
+      {(running || done || left !== seconds) && <button onClick={reset} style={{ background: "none", border: "none", color: C.muted, fontSize: 11, cursor: "pointer", padding: 2 }}>↺</button>}
+    </div>
+  );
+}
+
+function Toggle({ value, onChange, label }) {
+  return (
+    <button onClick={() => onChange(!value)} style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+      {label && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{label}</span>}
+      <div style={{ width: 32, height: 18, borderRadius: 9, background: value ? C.green : C.border, position: "relative", transition: "background 0.2s" }}>
+        <div style={{ width: 14, height: 14, borderRadius: 7, background: C.white, position: "absolute", top: 2, left: value ? 16 : 2, transition: "left 0.2s" }} />
+      </div>
+    </button>
+  );
+}
+
+function Counter({ value, onChange, label, color = C.accent }) {
+  const v = value || 0;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+      {label && <span style={{ fontSize: 9, color: C.muted, fontWeight: 600 }}>{label}</span>}
+      <button onClick={() => onChange(Math.max(0, v - 1))} style={{ width: 22, height: 22, borderRadius: 4, border: `1px solid ${C.border}`, background: C.card, color: C.muted, fontSize: 14, cursor: "pointer", padding: 0 }}>−</button>
+      <span style={{ minWidth: 20, textAlign: "center", fontSize: 13, fontWeight: 700, color: v > 0 ? color : C.muted, fontFamily: "monospace" }}>{v}</span>
+      <button onClick={() => onChange(v + 1)} style={{ width: 22, height: 22, borderRadius: 4, border: `1px solid ${color}`, background: color, color: C.white, fontSize: 14, fontWeight: 700, cursor: "pointer", padding: 0 }}>+</button>
+    </div>
+  );
+}
+
+function RPE({ value, onChange }) {
+  const cols = { 1: C.green, 2: C.green, 3: "#2ea043", 4: "#56d364", 5: C.yellow, 6: C.orange, 7: "#e3862a", 8: C.red, 9: "#da3633", 10: "#b62324" };
+  return (
+    <div style={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+      {[1,2,3,4,5,6,7,8,9,10].map(n => (
+        <button key={n} onClick={() => onChange(value === n ? null : n)} style={{ width: 22, height: 22, borderRadius: 4, border: "none", fontSize: 10, fontWeight: 700, cursor: "pointer", background: value === n ? cols[n] : C.card, color: value === n ? C.white : C.muted }}>{n}</button>
+      ))}
+    </div>
+  );
+}
+
+function Num({ value, onChange, placeholder, w = 44 }) {
+  return <input type="number" inputMode="numeric" value={value ?? ""} placeholder={placeholder} onChange={e => onChange(e.target.value)}
+    style={{ width: w, height: 28, borderRadius: 5, border: `1px solid ${C.border}`, background: C.bg, color: C.accent, textAlign: "center", fontSize: 13, fontWeight: 600, outline: "none", fontFamily: "monospace" }} />;
+}
+
+function Txt({ value, onChange, placeholder, w = 80 }) {
+  return <input type="text" value={value ?? ""} placeholder={placeholder} onChange={e => onChange(e.target.value)}
+    style={{ width: w, height: 28, borderRadius: 5, border: `1px solid ${C.border}`, background: C.bg, color: C.text, padding: "0 6px", fontSize: 12, outline: "none" }} />;
+}
+
+function Notes({ value, onChange, placeholder, rows = 2 }) {
+  return <textarea value={value ?? ""} placeholder={placeholder} onChange={e => onChange(e.target.value)} rows={rows}
+    style={{ width: "100%", borderRadius: 5, border: `1px solid ${C.border}`, background: C.bg, color: C.text, padding: "6px 8px", fontSize: 12, outline: "none", fontFamily: "inherit", resize: "vertical", minHeight: 28 * rows }} />;
+}
+
+function Section({ title, note, color, children }) {
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontSize: 11, fontWeight: 800, color: color || C.accent, padding: "6px 0 3px", borderBottom: `2px solid ${color || C.accent}`, marginBottom: 5, textTransform: "uppercase", letterSpacing: 0.5 }}>{title}</div>
+      {note && <div style={{ fontSize: 10, color: C.muted, fontStyle: "italic", marginBottom: 5 }}>{note}</div>}
+      {children}
+    </div>
+  );
+}
+
+function ExCard({ label, rx, children, timer }) {
+  return (
+    <div style={{ background: C.card, borderRadius: 7, padding: "7px 9px", marginBottom: 3, borderLeft: `2px solid ${C.border}` }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: C.white }}>{label}</span>
+        {rx && <span style={{ fontSize: 10, color: C.muted, fontFamily: "monospace" }}>{rx}</span>}
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>{children}{timer}</div>
+    </div>
+  );
+}
+
+const DAYS = {
+  MON: { label: "M", title: "Limit Bouldering + Pull + Core", color: C.red },
+  TUE: { label: "T", title: "Push + Legs + Shoulders", color: C.purple },
+  WED: { label: "W", title: "Arm Lifting + Pinch + Core", color: C.accent },
+  THU: { label: "Th", title: "Pull Day + Legs + Shoulders", color: C.green },
+  FRI: { label: "F", title: "Rest / Active Recovery", color: C.muted },
+  SAT: { label: "S", title: "Projects / Outdoor", color: C.yellow },
+};
+
+function App() {
+  const [weekKey, setWeekKey] = useState(getCurrentWeekKey());
+  const [data, setData] = useState(() => loadWeek(getCurrentWeekKey()));
+  const [day, setDay] = useState(() => {
+    const m = { 1: "MON", 2: "TUE", 3: "WED", 4: "THU", 5: "FRI", 6: "SAT" };
+    return m[new Date().getDay()] || "MON";
+  });
+  const [status, setStatus] = useState("idle");
+  const [showWeeks, setShowWeeks] = useState(false);
+  const [allWeeks, setAllWeeks] = useState(() => listAllWeeks());
+  const saveTimer = useRef(null);
+
+  useEffect(() => { setData(loadWeek(weekKey)); }, [weekKey]);
+
+  const persist = useCallback((newData) => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      const ok = saveWeek(weekKey, newData);
+      setStatus(ok ? "saved" : "error");
+      setAllWeeks(listAllWeeks());
+      setTimeout(() => setStatus("idle"), 1500);
+    }, 300);
+  }, [weekKey]);
+
+  const s = (k, v) => {
+    setData(prev => { const n = { ...prev, [k]: v }; persist(n); return n; });
+  };
+  const g = (k) => data[k] || {};
+  const gv = (k) => data[k];
+
+  const exportAll = () => {
+    const all = {};
+    for (const wk of listAllWeeks()) all[wk] = loadWeek(wk);
+    const blob = new Blob([JSON.stringify(all, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `tracker-backup-${fmtWeek(new Date())}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const importData = () => {
+    const input = document.createElement("input");
+    input.type = "file"; input.accept = ".json";
+    input.onchange = async (e) => {
+      const file = e.target.files[0]; if (!file) return;
+      const text = await file.text();
+      try {
+        const obj = JSON.parse(text);
+        for (const [wk, wd] of Object.entries(obj)) saveWeek(wk, wd);
+        setAllWeeks(listAllWeeks());
+        setData(loadWeek(weekKey));
+        alert("Imported successfully!");
+      } catch { alert("Import failed - invalid file"); }
+    };
+    input.click();
+  };
+
+  const dc = DAYS[day];
+  const statusText = { saved: "Saved ✓", error: "Save failed!", idle: "" };
+  const statusColor = { saved: C.green, error: C.red };
+
+  return (
+    <div style={{ background: C.bg, minHeight: "100vh", color: C.text }}>
+      <div style={{ background: C.card, padding: "10px 10px 6px", position: "sticky", top: 0, zIndex: 100, borderBottom: `1px solid ${C.border}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <button onClick={() => setShowWeeks(!showWeeks)} style={{ background: "none", border: "none", textAlign: "left", cursor: "pointer", padding: 0 }}>
+            <div style={{ fontSize: 9, color: C.muted, fontWeight: 600, letterSpacing: 1 }}>WEEK ▾</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: C.white }}>{displayWeekLabel(weekKey)} {weekKey === getCurrentWeekKey() && <span style={{ fontSize: 10, color: C.green, fontWeight: 600 }}>(current)</span>}</div>
+          </button>
+          <span style={{ fontSize: 10, fontWeight: 700, color: statusColor[status] || C.muted }}>{statusText[status]}</span>
+        </div>
+        {showWeeks && (
+          <div style={{ background: C.bg, border: `1px solid ${C.border}`, borderRadius: 6, padding: 6, marginBottom: 6, maxHeight: 200, overflowY: "auto" }}>
+            {weekKey !== getCurrentWeekKey() && (
+              <button onClick={() => { setWeekKey(getCurrentWeekKey()); setShowWeeks(false); }} style={{ display: "block", width: "100%", textAlign: "left", background: C.green, border: "none", color: C.white, padding: "6px 8px", fontSize: 12, fontWeight: 700, cursor: "pointer", borderRadius: 4, marginBottom: 4 }}>→ Jump to current week</button>
+            )}
+            {allWeeks.length === 0 && <div style={{ fontSize: 11, color: C.muted, padding: 4 }}>No past weeks yet</div>}
+            {allWeeks.map(wk => (
+              <button key={wk} onClick={() => { setWeekKey(wk); setShowWeeks(false); }}
+                style={{ display: "block", width: "100%", textAlign: "left", background: wk === weekKey ? C.accent : "transparent", border: "none", color: wk === weekKey ? C.white : C.text, padding: "5px 8px", fontSize: 11, cursor: "pointer", borderRadius: 3 }}>
+                {displayWeekLabel(wk)} {wk === getCurrentWeekKey() ? "(current)" : ""}
+              </button>
+            ))}
+            <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 4, paddingTop: 4, display: "flex", gap: 4 }}>
+              <button onClick={exportAll} style={{ flex: 1, background: C.card, border: `1px solid ${C.border}`, color: C.text, padding: "4px 6px", fontSize: 10, cursor: "pointer", borderRadius: 3 }}>📥 Export</button>
+              <button onClick={importData} style={{ flex: 1, background: C.card, border: `1px solid ${C.border}`, color: C.text, padding: "4px 6px", fontSize: 10, cursor: "pointer", borderRadius: 3 }}>📤 Import</button>
+            </div>
+          </div>
+        )}
+        <div style={{ display: "flex", gap: 2 }}>
+          {Object.entries(DAYS).map(([k, d]) => (
+            <button key={k} onClick={() => setDay(k)} style={{ flex: 1, padding: "6px 0", borderRadius: 5, border: "none", cursor: "pointer", background: k === day ? d.color : "transparent", color: k === day ? C.white : C.muted, fontSize: 12, fontWeight: 800 }}>{d.label}</button>
+          ))}
+          <button onClick={() => setDay("SUM")} style={{ flex: 1, padding: "6px 0", borderRadius: 5, border: "none", cursor: "pointer", background: day === "SUM" ? "#555" : "transparent", color: day === "SUM" ? C.white : C.muted, fontSize: 11, fontWeight: 800 }}>✎</button>
+        </div>
+      </div>
+
+      <div style={{ padding: "8px 8px 80px" }}>
+        {day !== "SUM" && dc && (
+          <div style={{ background: dc.color, borderRadius: 8, padding: "8px 12px", marginBottom: 8, opacity: 0.9 }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: C.white }}>{dc.title}</div>
+          </div>
+        )}
+
+        {day === "SUM" && (
+          <Section title="Weekly Notes & Reflection">
+            <Notes value={gv("weekNotes")} onChange={v => s("weekNotes", v)} placeholder="Energy, pain, wins, adjustments..." rows={8} />
+          </Section>
+        )}
+
+        {/* MONDAY */}
+        {day === "MON" && (<>
+          <Section title="Limit Bouldering — Kilter Board" note="30-40° | V6-V8 | 3-5 min rest | 6 problems × 4 attempts" color={C.red}>
+            {[1,2,3,4,5,6].map(p => {
+              const pk = `m-p${p}`, pd = g(pk), u = (k,v) => s(pk, {...pd,[k]:v});
+              return (
+                <div key={p} style={{ background: C.card, borderRadius: 7, padding: "8px 10px", marginBottom: 5, borderLeft: `3px solid ${C.red}` }}>
+                  <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 5 }}>
+                    <span style={{ fontSize: 13, fontWeight: 800, color: C.white, width: 22 }}>#{p}</span>
+                    <Txt value={pd.name} onChange={v => u("name",v)} placeholder="Problem name" w={110} />
+                    <Txt value={pd.grade} onChange={v => u("grade",v)} placeholder="V6-8" w={52} />
+                  </div>
+                  <div style={{ fontSize: 9, color: C.muted, fontWeight: 700, marginBottom: 3 }}>DIFFICULTY</div>
+                  <div style={{ marginBottom: 6 }}><RPE value={pd.diff} onChange={v => u("diff",v)} /></div>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 5 }}>
+                    <Counter value={pd.attempts} onChange={v => u("attempts",v)} label="ATTEMPTS" color={C.red} />
+                    <Toggle value={pd.sent} onChange={v => u("sent",v)} label="SENT" />
+                    <Timer seconds={240} label="Rest" color={C.red} />
+                  </div>
+                  <Notes value={pd.notes} onChange={v => u("notes",v)} placeholder="Detailed notes on the problem, beta, crux, etc." rows={3} />
+                </div>
+              );
+            })}
+          </Section>
+          <Section title="Pull: Weighted Pull-ups (after climbing)" color={C.red}>
+            {(() => {
+              const ek = "m-pull", ed = g(ek), u = (k,v) => s(ek,{...ed,[k]:v});
+              return (
+                <div style={{ background: C.card, borderRadius: 7, padding: "8px 10px", marginBottom: 3 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.white }}>Weighted Pull-ups</span>
+                    <span style={{ fontSize: 10, color: C.muted, fontFamily: "monospace" }}>5×5 @ +35 lbs</span>
+                  </div>
+                  <div style={{ marginBottom: 5 }}><Txt value={ed.load} onChange={v => u("load",v)} placeholder="Load" w={50} /></div>
+                  {[1,2,3,4,5].map(sn => (
+                    <div key={sn} style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 2 }}>
+                      <span style={{ fontSize: 9, color: C.muted, width: 28 }}>Set {sn}</span>
+                      <Num value={ed[`r${sn}`]} onChange={v => u(`r${sn}`,v)} placeholder="reps" w={38} />
+                      <div style={{ flex: 1 }}><RPE value={ed[`rpe${sn}`]} onChange={v => u(`rpe${sn}`,v)} /></div>
+                      <Timer seconds={180} label="Rest" color={C.red} />
+                    </div>
+                  ))}
+                  <Notes value={ed.notes} onChange={v => u("notes",v)} placeholder="Notes" rows={2} />
+                </div>
+              );
+            })()}
+            {(() => {
+              const ek = "m-rings", ed = g(ek), u = (k,v) => s(ek,{...ed,[k]:v});
+              return (
+                <div style={{ background: C.card, borderRadius: 7, padding: "8px 10px", marginBottom: 3 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.white }}>Inverted Ring Rows</span>
+                    <span style={{ fontSize: 10, color: C.muted, fontFamily: "monospace" }}>3×10, 2s pause top</span>
+                  </div>
+                  {[1,2,3].map(sn => (
+                    <div key={sn} style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 2 }}>
+                      <span style={{ fontSize: 9, color: C.muted, width: 28 }}>Set {sn}</span>
+                      <Num value={ed[`r${sn}`]} onChange={v => u(`r${sn}`,v)} placeholder="reps" w={38} />
+                      <div style={{ flex: 1 }}><RPE value={ed[`rpe${sn}`]} onChange={v => u(`rpe${sn}`,v)} /></div>
+                      <Timer seconds={120} label="Rest" color={C.red} />
+                    </div>
+                  ))}
+                  <Notes value={ed.notes} onChange={v => u("notes",v)} placeholder="Notes" rows={2} />
+                </div>
+              );
+            })()}
+          </Section>
+          <Section title="Core A" color={C.red}>
+            {[{name:"Pallof Press",rx:"3×10 ea side"},{name:"Hanging Leg Raises",rx:"3×8-12"}].map((ex,i) => {
+              const ek = `m-c${i}`, ed = g(ek), u = (k,v) => s(ek,{...ed,[k]:v});
+              return (
+                <div key={i} style={{ background: C.card, borderRadius: 7, padding: "7px 9px", marginBottom: 3 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.white }}>{ex.name}</span>
+                    <span style={{ fontSize: 10, color: C.muted, fontFamily: "monospace" }}>{ex.rx}</span>
+                  </div>
+                  {[1,2,3].map(si => (
+                    <div key={si} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 3 }}>
+                      <Toggle value={ed[`s${si}`]} onChange={v => u(`s${si}`,v)} label={`Set ${si}`} />
+                      <div style={{ flex: 1 }}><RPE value={ed[`rpe${si}`]} onChange={v => u(`rpe${si}`,v)} /></div>
+                      <Timer seconds={60} label="Rest" color={C.red} />
+                    </div>
+                  ))}
+                  <Notes value={ed.notes} onChange={v => u("notes",v)} placeholder="Notes (band used, form cues, etc.)" rows={2} />
+                </div>
+              );
+            })}
+          </Section>
+        </>)}
+
+        {/* TUESDAY */}
+        {day === "TUE" && [
+          { t: "Push", exs: [
+            { name: "Bench Press", rx: "3×8-10 @ 35 DB", rest: 120, sets: 3 },
+            { name: "Overhead Press", rx: "3×8-10 @ 65", rest: 150, sets: 3 },
+            { name: "Dips", rx: "3×8-12 @ BW", rest: 120, sets: 3 },
+            { name: "Push-ups", rx: "2×max", rest: 90, sets: 2 },
+          ]},
+          { t: "Legs", exs: [
+            { name: "Deadlift", rx: "3×5 @ 135", rest: 180, sets: 3 },
+            { name: "Bulgarian Split Squat", rx: "3×8 ea @ BW", rest: 120, sets: 3 },
+          ]},
+          { t: "Accessory + Shoulders", exs: [
+            { name: "Hammer Curls", rx: "3×10-12 @ 20", rest: 60, sets: 3 },
+            { name: "Rotator Cuff Rotations", rx: "3×10 @ 10 lb", rest: 60, sets: 3 },
+            { name: "I-Y-T Raises", rx: "3×6 each @ 7 lb", rest: 60, sets: 3 },
+          ]},
+        ].map((sec, si) => (
+          <Section key={si} title={sec.t} color={C.purple}>
+            {sec.exs.map((ex, ei) => {
+              const ek = `t-${si}-${ei}`, ed = g(ek), u = (k,v) => s(ek,{...ed,[k]:v});
+              return (
+                <div key={ei} style={{ background: C.card, borderRadius: 7, padding: "7px 9px", marginBottom: 3 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.white }}>{ex.name}</span>
+                    <span style={{ fontSize: 10, color: C.muted, fontFamily: "monospace" }}>{ex.rx}</span>
+                  </div>
+                  <div style={{ marginBottom: 3 }}><Txt value={ed.load} onChange={v => u("load",v)} placeholder="Load" w={46} /></div>
+                  {Array.from({length: ex.sets}, (_,si2) => si2+1).map(sn => (
+                    <div key={sn} style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 2 }}>
+                      <span style={{ fontSize: 9, color: C.muted, width: 28 }}>Set {sn}</span>
+                      <Num value={ed[`r${sn}`]} onChange={v => u(`r${sn}`,v)} placeholder="reps" w={38} />
+                      <div style={{ flex: 1 }}><RPE value={ed[`rpe${sn}`]} onChange={v => u(`rpe${sn}`,v)} /></div>
+                      <Timer seconds={ex.rest} label="Rest" color={C.purple} />
+                    </div>
+                  ))}
+                  <Notes value={ed.notes} onChange={v => u("notes",v)} placeholder="Notes" rows={2} />
+                </div>
+              );
+            })}
+          </Section>
+        ))}
+
+        {/* WEDNESDAY - ARM LIFTING */}
+        {day === "WED" && (<>
+          <Section title="Part A: Arm Lifting — 20mm Half Crimp (single arm)" note="Pull weight off ground via loading pin + block. 5s max pulls." color={C.accent}>
+            {[1,2,3,4].map(i => {
+              const hk = `w-a${i}`, hd = g(hk), u = (k,v) => s(hk,{...hd,[k]:v});
+              return (
+                <ExCard key={i} label={`Set ${i}`} rx="5s pull, 3 min rest" timer={<Timer seconds={180} label="Rest" color={C.accent} />}>
+                  <Txt value={hd.load} onChange={v => u("load",v)} placeholder="Load" w={46} />
+                  <Toggle value={hd.rdone} onChange={v => u("rdone",v)} label="R" />
+                  <Toggle value={hd.ldone} onChange={v => u("ldone",v)} label="L" />
+                  <RPE value={hd.rpe} onChange={v => u("rpe",v)} />
+                </ExCard>
+              );
+            })}
+            {(() => { const ek="w-a-notes",ed=g(ek),u=(k,v)=>s(ek,{...ed,[k]:v});
+              return <Notes value={ed.notes} onChange={v=>u("notes",v)} placeholder="Notes on half crimp arm lifts" rows={2} />; })()}
+          </Section>
+          <Section title="Part B: Arm Lifting — 20mm Open Hand (single arm)" color={C.accent}>
+            {[1,2,3,4].map(i => {
+              const hk = `w-b${i}`, hd = g(hk), u = (k,v) => s(hk,{...hd,[k]:v});
+              return (
+                <ExCard key={i} label={`Set ${i}`} rx="5s pull, 3 min rest" timer={<Timer seconds={180} label="Rest" color={C.accent} />}>
+                  <Txt value={hd.load} onChange={v => u("load",v)} placeholder="Load" w={46} />
+                  <Toggle value={hd.rdone} onChange={v => u("rdone",v)} label="R" />
+                  <Toggle value={hd.ldone} onChange={v => u("ldone",v)} label="L" />
+                  <RPE value={hd.rpe} onChange={v => u("rpe",v)} />
+                </ExCard>
+              );
+            })}
+            {(() => { const ek="w-b-notes",ed=g(ek),u=(k,v)=>s(ek,{...ed,[k]:v});
+              return <Notes value={ed.notes} onChange={v=>u("notes",v)} placeholder="Notes on open hand arm lifts" rows={2} />; })()}
+          </Section>
+          <Section title="Part C: Pinch Block" note="R → L → 3 min rest = 1 set" color={C.accent}>
+            {[{name:"Repeater Set 1",rx:"+20 | 7on/3off ×6"},{name:"Repeater Set 2",rx:"+20 | 7on/3off ×6"},{name:"Repeater Set 3",rx:"+20 | 7on/3off ×6"},{name:"Max Hold 1",rx:"+25 | 7s"},{name:"Max Hold 2",rx:"+30 | 7s"}].map((p,i) => {
+              const pk = `w-c${i}`, pd = g(pk), u = (k,v) => s(pk,{...pd,[k]:v});
+              return (
+                <ExCard key={i} label={p.name} rx={p.rx} timer={<Timer seconds={180} label="Rest" color={C.accent} />}>
+                  <Txt value={pd.load} onChange={v => u("load",v)} placeholder="Load" w={46} />
+                  <Toggle value={pd.r} onChange={v => u("r",v)} label="R" />
+                  <Toggle value={pd.l} onChange={v => u("l",v)} label="L" />
+                  <RPE value={pd.rpe} onChange={v => u("rpe",v)} />
+                </ExCard>
+              );
+            })}
+          </Section>
+          <Section title="Part D: Wrist Extensor Curls" color={C.accent}>
+            {[1,2,3].map(i => {
+              const ek = `w-d${i}`, ed = g(ek), u = (k,v) => s(ek,{...ed,[k]:v});
+              return (
+                <ExCard key={i} label={`Set ${i}`} rx="5 lbs × 15" timer={<Timer seconds={60} label="Rest" color={C.accent} />}>
+                  <Txt value={ed.load} onChange={v => u("load",v)} placeholder="5" w={36} />
+                  <Num value={ed.reps} onChange={v => u("reps",v)} placeholder="15" w={36} />
+                  <Toggle value={ed.done} onChange={v => u("done",v)} label="✓" />
+                </ExCard>
+              );
+            })}
+          </Section>
+          <Section title="Core B" color={C.accent}>
+            {[{name:"Copenhagen Plank",rx:"3×15-20s ea"},{name:"Ab Wheel Rollouts",rx:"3×8-10"}].map((ex,i) => {
+              const ek = `w-cb${i}`, ed = g(ek), u = (k,v) => s(ek,{...ed,[k]:v});
+              return (
+                <div key={i} style={{ background: C.card, borderRadius: 7, padding: "7px 9px", marginBottom: 3 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.white }}>{ex.name}</span>
+                    <span style={{ fontSize: 10, color: C.muted, fontFamily: "monospace" }}>{ex.rx}</span>
+                  </div>
+                  {[1,2,3].map(si => (
+                    <div key={si} style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 2 }}>
+                      <Toggle value={ed[`s${si}`]} onChange={v => u(`s${si}`,v)} label={`Set ${si}`} />
+                      <div style={{ flex: 1 }}><RPE value={ed[`rpe${si}`]} onChange={v => u(`rpe${si}`,v)} /></div>
+                      <Timer seconds={60} label="Rest" color={C.accent} />
+                    </div>
+                  ))}
+                  <Notes value={ed.notes} onChange={v => u("notes",v)} placeholder="Notes" rows={2} />
+                </div>
+              );
+            })}
+          </Section>
+        </>)}
+
+        {/* THURSDAY - PULL DAY */}
+        {day === "THU" && [
+          { t: "Pull Strength", exs: [
+            { name: "Weighted Pull-ups", rx: "4×5 @ +30", rest: 180, sets: 4 },
+            { name: "Inverted Ring Rows", rx: "3×10, 2s pause", rest: 120, sets: 3 },
+            { name: "Uneven-grip Pull-ups", rx: "3×5 ea, 12\"", rest: 120, sets: 3 },
+            { name: "Scap Pulls", rx: "3×5 each arm", rest: 90, sets: 3 },
+          ]},
+          { t: "Legs", exs: [
+            { name: "Back Squat", rx: "3×8-10 @ bar", rest: 150, sets: 3 },
+            { name: "Romanian Deadlift", rx: "3×8-10 @ 95", rest: 150, sets: 3 },
+          ]},
+          { t: "Shoulder Prehab", exs: [
+            { name: "Rotator Cuff Rotations", rx: "3×10 @ 10 lb", rest: 60, sets: 3 },
+            { name: "I-Y-T Raises", rx: "3×6 each @ 7 lb", rest: 60, sets: 3 },
+          ]},
+        ].map((sec, si) => (
+          <Section key={si} title={sec.t} color={C.green}>
+            {sec.exs.map((ex, ei) => {
+              const ek = `th-${si}-${ei}`, ed = g(ek), u = (k,v) => s(ek,{...ed,[k]:v});
+              return (
+                <div key={ei} style={{ background: C.card, borderRadius: 7, padding: "7px 9px", marginBottom: 3 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: C.white }}>{ex.name}</span>
+                    <span style={{ fontSize: 10, color: C.muted, fontFamily: "monospace" }}>{ex.rx}</span>
+                  </div>
+                  <div style={{ marginBottom: 3 }}><Txt value={ed.load} onChange={v => u("load",v)} placeholder="Load" w={46} /></div>
+                  {Array.from({length: ex.sets}, (_,si2) => si2+1).map(sn => (
+                    <div key={sn} style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 2 }}>
+                      <span style={{ fontSize: 9, color: C.muted, width: 28 }}>Set {sn}</span>
+                      <Num value={ed[`r${sn}`]} onChange={v => u(`r${sn}`,v)} placeholder="reps" w={38} />
+                      <div style={{ flex: 1 }}><RPE value={ed[`rpe${sn}`]} onChange={v => u(`rpe${sn}`,v)} /></div>
+                      <Timer seconds={ex.rest} label="Rest" color={C.green} />
+                    </div>
+                  ))}
+                  <Notes value={ed.notes} onChange={v => u("notes",v)} placeholder="Notes" rows={2} />
+                </div>
+              );
+            })}
+          </Section>
+        ))}
+
+        {/* FRIDAY - REST */}
+        {day === "FRI" && (
+          <Section title="Rest / Active Recovery" color={C.muted}>
+            <div style={{ background: C.card, borderRadius: 8, padding: 14, fontSize: 13, color: C.text, lineHeight: 1.6 }}>
+              <p style={{ marginTop: 0 }}>Today is for recovery. Optional activities:</p>
+              <ul style={{ paddingLeft: 20, marginBottom: 12 }}>
+                <li>20-30 min easy walk</li>
+                <li>10-15 min mobility routine</li>
+                <li>Light stretching or yoga</li>
+                <li>Forearm massage / massage gun work</li>
+              </ul>
+              <Notes value={gv("fri-notes")} onChange={v => s("fri-notes", v)} placeholder="Recovery notes, how you're feeling, any nagging issues..." rows={4} />
+            </div>
+          </Section>
+        )}
+
+        {/* SATURDAY */}
+        {day === "SAT" && (() => {
+          const mode = gv("sat-mode") || "kilter";
+          return (<>
+            <div style={{ display: "flex", gap: 3, marginBottom: 8 }}>
+              {[{k:"kilter",l:"Kilter"},{k:"boulder",l:"Gym Projects"},{k:"outdoor",l:"Outdoor"}].map(m => (
+                <button key={m.k} onClick={() => s("sat-mode",m.k)} style={{ flex: 1, padding: "7px 0", borderRadius: 6, border: `1px solid ${mode===m.k?C.yellow:C.border}`, background: mode===m.k?C.yellow:C.card, color: mode===m.k?C.bg:C.muted, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>{m.l}</button>
+              ))}
+            </div>
+            {(mode==="kilter"||mode==="boulder") && (
+              <Section title={mode==="kilter"?"Kilter Board Projects":"Gym Project Boulders"} color={C.yellow}>
+                {[1,2,3,4,5,6].map(p => {
+                  const pk = `s-${mode}-${p}`, pd = g(pk), u = (k,v) => s(pk,{...pd,[k]:v});
+                  return (
+                    <div key={p} style={{ background: C.card, borderRadius: 7, padding: "8px 10px", marginBottom: 4, borderLeft: `3px solid ${C.yellow}` }}>
+                      <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 5 }}>
+                        <span style={{ fontSize: 12, fontWeight: 800, color: C.white }}>#{p}</span>
+                        <Txt value={pd.name} onChange={v => u("name",v)} placeholder="Problem" w={110} />
+                        <Txt value={pd.grade} onChange={v => u("grade",v)} placeholder="V7" w={44} />
+                      </div>
+                      <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 5 }}>
+                        <Counter value={pd.attempts} onChange={v => u("attempts",v)} label="ATTEMPTS" color={C.yellow} />
+                        <Toggle value={pd.sent} onChange={v => u("sent",v)} label="SENT" />
+                        <Timer seconds={240} label="Rest" color={C.yellow} />
+                      </div>
+                      <Notes value={pd.notes} onChange={v => u("notes",v)} placeholder="Detailed notes, beta, crux..." rows={3} />
+                    </div>
+                  );
+                })}
+              </Section>
+            )}
+            {mode==="outdoor" && (
+              <Section title="Outdoor Climbing" color={C.yellow}>
+                {[1,2,3,4,5,6,7,8].map(p => {
+                  const pk = `s-out-${p}`, pd = g(pk), u = (k,v) => s(pk,{...pd,[k]:v});
+                  return (
+                    <div key={p} style={{ background: C.card, borderRadius: 7, padding: "8px 10px", marginBottom: 4, borderLeft: `3px solid ${C.yellow}` }}>
+                      <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 5, flexWrap: "wrap" }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: C.white, width: 16 }}>{p}</span>
+                        <Txt value={pd.name} onChange={v => u("name",v)} placeholder="Route" w={110} />
+                        <Txt value={pd.grade} onChange={v => u("grade",v)} placeholder="5.12a" w={56} />
+                      </div>
+                      <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 5 }}>
+                        <Counter value={pd.attempts} onChange={v => u("attempts",v)} label="ATTEMPTS" color={C.yellow} />
+                        <Toggle value={pd.sent} onChange={v => u("sent",v)} label="SENT" />
+                      </div>
+                      <Notes value={pd.notes} onChange={v => u("notes",v)} placeholder="Detailed notes, beta, crux, how it went..." rows={3} />
+                    </div>
+                  );
+                })}
+              </Section>
+            )}
+            {mode!=="outdoor" && (
+              <Section title="Post-Climbing: Max BW Pull-ups" color={C.yellow}>
+                {[1,2].map(i => {
+                  const ek = `s-post-${i}`, ed = g(ek), u = (k,v) => s(ek,{...ed,[k]:v});
+                  return (
+                    <ExCard key={i} label={`Set ${i}`} rx="Max BW reps" timer={<Timer seconds={180} label="Rest" color={C.yellow} />}>
+                      <Num value={ed.reps} onChange={v => u("reps",v)} placeholder="reps" w={40} />
+                      <RPE value={ed.rpe} onChange={v => u("rpe",v)} />
+                    </ExCard>
+                  );
+                })}
+              </Section>
+            )}
+          </>);
+        })()}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));
+</script>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
