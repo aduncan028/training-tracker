@@ -38,7 +38,7 @@ const PHASES=[
 ];
 const PHASE1_START=new Date("2026-06-29");
 function getWeekNum(){const now=new Date();const diff=Math.floor((now-PHASE1_START)/(7*86400000));return Math.max(1,diff+1);}
-function getPhase(wk){for(const p of PHASES)if(wk>=p.weeks[0]&&wk<=p.weeks[1])return p;return PHASES[PHASES.length-1];}
+function getPhase(wk){for(var i=0;i<PHASES.length;i++){var p=PHASES[i];if(wk>=p.weeks[0]&&wk<=p.weeks[1])return p;}return PHASES[PHASES.length-1];}
 function isDeload(wk){return wk===4||wk===8||wk===12;}
 
 /* Block pull progression tables (Phase 1, per hand) */
@@ -69,19 +69,19 @@ function getWPullProg(baseLoad,weekNum){
 
 /* ── STORAGE ── */
 const PFX="at5:";
-function load(k){try{const r=localStorage.getItem(PFX+k);return r?JSON.parse(r):{};}catch{return{};}}
-function save(k,d){try{localStorage.setItem(PFX+k,JSON.stringify(d));return true;}catch{return false;}}
+function load(k){try{const r=localStorage.getItem(PFX+k);return r?JSON.parse(r):{};}catch(e){return{};}}
+function save(k,d){try{localStorage.setItem(PFX+k,JSON.stringify(d));return true;}catch(e){return false;}}
 function getMondayOf(d){const dt=new Date(d);const day=dt.getDay();dt.setDate(dt.getDate()-day+(day===0?-6:1));dt.setHours(0,0,0,0);return dt;}
 function fmtWk(d){return d.toISOString().slice(0,10);}
 function getCurWk(){return fmtWk(getMondayOf(new Date()));}
 function displayWkLabel(wk){const s=new Date(wk+"T00:00:00");const e=new Date(s);e.setDate(e.getDate()+6);const f=d=>`${d.getMonth()+1}/${d.getDate()}`;return`${f(s)} – ${f(e)}`;}
-function listWeeks(){const ws=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k?.startsWith(PFX))ws.push(k.replace(PFX,""));}return ws.sort().reverse();}
+function listWeeks(){const ws=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(PFX))ws.push(k.replace(PFX,""));}return ws.sort().reverse();}
 
 /* ── UI COMPONENTS ── */
 function Timer({seconds,label,color=C.accent}){
   const[left,setLeft]=useState(seconds);const[running,setRunning]=useState(false);const[done,setDone]=useState(false);const iv=useRef(null);
-  useEffect(()=>{if(running&&left>0){iv.current=setInterval(()=>setLeft(l=>{if(l<=1){clearInterval(iv.current);setRunning(false);setDone(true);try{navigator.vibrate?.(200)}catch{};return 0;}return l-1;}),1000);}return()=>clearInterval(iv.current);},[running,left]);
-  const reset=e=>{e?.stopPropagation();setLeft(seconds);setRunning(false);setDone(false);};const toggle=()=>{if(done)reset();else setRunning(!running);};
+  useEffect(()=>{if(running&&left>0){iv.current=setInterval(()=>setLeft(l=>{if(l<=1){clearInterval(iv.current);setRunning(false);setDone(true);try{navigator.vibrate&&navigator.vibrate(200)}catch(e){};return 0;}return l-1;}),1000);}return()=>clearInterval(iv.current);},[running,left]);
+  const reset=e=>{e&&e.stopPropagation();setLeft(seconds);setRunning(false);setDone(false);};const toggle=()=>{if(done)reset();else setRunning(!running);};
   const m=Math.floor(left/60),s=left%60;
   return(<div style={{display:"flex",alignItems:"center",gap:4}}>
     <button onClick={toggle} style={{background:done?C.green:running?C.red:C.card,border:`1px solid ${done?C.green:running?C.red:C.border}`,color:C.white,borderRadius:6,padding:"4px 8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"monospace",minWidth:44}}>{done?"✓":`${m}:${s.toString().padStart(2,"0")}`}</button>
@@ -108,9 +108,9 @@ function Counter({value,onChange,label,color=C.accent}){const v=value||0;return(
 function RPE({value,onChange}){const cols={1:C.green,2:C.green,3:"#2ea043",4:"#56d364",5:C.yellow,6:C.orange,7:"#e3862a",8:C.red,9:"#da3633",10:"#b62324"};return(
   <div style={{display:"flex",gap:2,flexWrap:"wrap"}}>{[1,2,3,4,5,6,7,8,9,10].map(n=>(<button key={n} onClick={()=>onChange(value===n?null:n)} style={{width:22,height:22,borderRadius:4,border:"none",fontSize:10,fontWeight:700,cursor:"pointer",background:value===n?cols[n]:C.card,color:value===n?C.white:C.muted}}>{n}</button>))}</div>);
 }
-function Num({value,onChange,placeholder,w=44}){return <input type="number" inputMode="numeric" value={value??""}placeholder={placeholder}onChange={e=>onChange(e.target.value)}style={{width:w,height:28,borderRadius:5,border:`1px solid ${C.border}`,background:C.bg,color:C.accent,textAlign:"center",fontSize:13,fontWeight:600,outline:"none",fontFamily:"monospace"}}/>;}
-function Txt({value,onChange,placeholder,w=80}){return <input type="text" value={value??""}placeholder={placeholder}onChange={e=>onChange(e.target.value)}style={{width:w,height:28,borderRadius:5,border:`1px solid ${C.border}`,background:C.bg,color:C.text,padding:"0 6px",fontSize:12,outline:"none"}}/>;}
-function Notes({value,onChange,placeholder,rows=2}){return <textarea value={value??""}placeholder={placeholder}onChange={e=>onChange(e.target.value)}rows={rows}style={{width:"100%",borderRadius:5,border:`1px solid ${C.border}`,background:C.bg,color:C.text,padding:"6px 8px",fontSize:12,outline:"none",fontFamily:"inherit",minHeight:28*rows,boxSizing:"border-box"}}/>;}
+function Num({value,onChange,placeholder,w=44}){return <input type="number" inputMode="numeric" value={value!=null?value:""}placeholder={placeholder}onChange={e=>onChange(e.target.value)}style={{width:w,height:28,borderRadius:5,border:`1px solid ${C.border}`,background:C.bg,color:C.accent,textAlign:"center",fontSize:13,fontWeight:600,outline:"none",fontFamily:"monospace"}}/>;}
+function Txt({value,onChange,placeholder,w=80}){return <input type="text" value={value!=null?value:""}placeholder={placeholder}onChange={e=>onChange(e.target.value)}style={{width:w,height:28,borderRadius:5,border:`1px solid ${C.border}`,background:C.bg,color:C.text,padding:"0 6px",fontSize:12,outline:"none"}}/>;}
+function Notes({value,onChange,placeholder,rows=2}){return <textarea value={value!=null?value:""}placeholder={placeholder}onChange={e=>onChange(e.target.value)}rows={rows}style={{width:"100%",borderRadius:5,border:`1px solid ${C.border}`,background:C.bg,color:C.text,padding:"6px 8px",fontSize:12,outline:"none",fontFamily:"inherit",minHeight:28*rows,boxSizing:"border-box"}}/>;}
 function Section({title,note,color,children}){return(<div style={{marginBottom:14}}><div style={{fontSize:11,fontWeight:800,color:color||C.accent,padding:"6px 0 3px",borderBottom:`2px solid ${color||C.accent}`,marginBottom:5,textTransform:"uppercase",letterSpacing:.5}}>{title}</div>{note&&<div style={{fontSize:10,color:C.muted,fontStyle:"italic",marginBottom:5}}>{note}</div>}{children}</div>);}
 
 /* Adjustable weight component */
@@ -218,8 +218,8 @@ function App(){
   const manualLegSwap=gv("legSwap");
   const showLegA=manualLegSwap!=null?manualLegSwap:legWeekA;
 
-  const exportAll=()=>{const all={};for(const wk of listWeeks())all[wk]=load(wk);const blob=new Blob([JSON.stringify(all,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`tracker-${fmtWk(new Date())}.json`;a.click();URL.revokeObjectURL(url);};
-  const importData=()=>{const inp=document.createElement("input");inp.type="file";inp.accept=".json";inp.onchange=async e=>{const f=e.target.files[0];if(!f)return;const t=await f.text();try{const o=JSON.parse(t);for(const[wk,wd]of Object.entries(o))save(wk,wd);setData(load(weekKey));alert("Imported!");}catch{alert("Failed");}};inp.click();};
+  const exportAll=()=>{const all={};var wks=listWeeks();wks.forEach(function(wk){all[wk]=load(wk);});const blob=new Blob([JSON.stringify(all,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="tracker-"+fmtWk(new Date())+".json";a.click();URL.revokeObjectURL(url);};
+  const importData=()=>{const inp=document.createElement("input");inp.type="file";inp.accept=".json";inp.onchange=function(e){const f=e.target.files[0];if(!f)return;var reader=new FileReader();reader.onload=function(ev){try{const o=JSON.parse(ev.target.result);Object.keys(o).forEach(function(wk){save(wk,o[wk]);});setData(load(weekKey));alert("Imported!");}catch(e){alert("Failed");}};reader.readAsText(f);};inp.click();};
 
   const stC={saved:C.green,error:C.red};const stT={saved:"Saved ✓",error:"Failed!",idle:""};
 
@@ -551,6 +551,6 @@ function App(){
 
 ReactDOM.render(<App/>,document.getElementById("root"));
 </script>
-<script>if("serviceWorker"in navigator)window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});</script>
+<script>if("serviceWorker"in navigator)window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(function(){});});</script>
 </body>
 </html>
