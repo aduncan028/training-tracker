@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="theme-color" content="#0d1117"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Training"/>
 <link rel="manifest" href="manifest.json"/>
@@ -23,534 +23,2316 @@ textarea{resize:vertical}
 <div id="root"></div>
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script type="text/babel" data-presets="react">
-const{useState,useEffect,useCallback,useRef,useMemo}=React;
-const C={bg:"#0d1117",card:"#161b22",border:"#30363d",accent:"#58a6ff",red:"#f85149",green:"#3fb950",orange:"#d29922",purple:"#bc8cff",yellow:"#e3b341",text:"#c9d1d9",muted:"#8b949e",white:"#f0f6fc",pink:"#f778ba",teal:"#39d2c0"};
+<script>
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+var _React = React,
+  useState = _React.useState,
+  useEffect = _React.useEffect,
+  useCallback = _React.useCallback,
+  useRef = _React.useRef,
+  useMemo = _React.useMemo;
+var C = {
+  bg: "#0d1117",
+  card: "#161b22",
+  border: "#30363d",
+  accent: "#58a6ff",
+  red: "#f85149",
+  green: "#3fb950",
+  orange: "#d29922",
+  purple: "#bc8cff",
+  yellow: "#e3b341",
+  text: "#c9d1d9",
+  muted: "#8b949e",
+  white: "#f0f6fc",
+  pink: "#f778ba",
+  teal: "#39d2c0"
+};
 
 /* ── MACROCYCLE ── */
-const PHASES=[
-  {id:1,name:"Strength",weeks:[1,5],dates:"Jun 29 – Aug 2",intent:"Max force",finger:"Heavy block pulls",pull:"5×5 + max weighted",climbing:"Limit boulder"},
-  {id:2,name:"Power",weeks:[6,8],dates:"Aug 3 – Aug 23",intent:"Rate of force dev",finger:"Recruitment/velocity pulls",pull:"Power pulls, OAP",climbing:"Limit + first-move power"},
-  {id:3,name:"Power-Endurance",weeks:[9,12],dates:"Aug 24 – Sep 20",intent:"Route fitness",finger:"Density/repeaters",pull:"Frenchies",climbing:"Circuits, linked boulders, routes"},
-  {id:4,name:"Taper",weeks:[13,14],dates:"Sep 21 – Oct 4",intent:"Sharpen, shed fatigue",finger:"Maintain intensity, cut volume",pull:"↓",climbing:"Quality redpoint feel"},
-  {id:5,name:"Perform",weeks:[15,15],dates:"Oct 5 – 11",intent:"Send",finger:"Primers only",pull:"—",climbing:"Smith Rock"},
-];
-const PHASE1_START=new Date("2026-06-29");
-function getWeekNum(){const now=new Date();const diff=Math.floor((now-PHASE1_START)/(7*86400000));return Math.max(1,diff+1);}
-function getPhase(wk){for(var i=0;i<PHASES.length;i++){var p=PHASES[i];if(wk>=p.weeks[0]&&wk<=p.weeks[1])return p;}return PHASES[PHASES.length-1];}
-function isDeload(wk){return wk===4||wk===8||wk===12;}
+var PHASES = [{
+  id: 1,
+  name: "Strength",
+  weeks: [1, 5],
+  dates: "Jun 29 – Aug 2",
+  intent: "Max force",
+  finger: "Heavy block pulls",
+  pull: "5×5 + max weighted",
+  climbing: "Limit boulder"
+}, {
+  id: 2,
+  name: "Power",
+  weeks: [6, 8],
+  dates: "Aug 3 – Aug 23",
+  intent: "Rate of force dev",
+  finger: "Recruitment/velocity pulls",
+  pull: "Power pulls, OAP",
+  climbing: "Limit + first-move power"
+}, {
+  id: 3,
+  name: "Power-Endurance",
+  weeks: [9, 12],
+  dates: "Aug 24 – Sep 20",
+  intent: "Route fitness",
+  finger: "Density/repeaters",
+  pull: "Frenchies",
+  climbing: "Circuits, linked boulders, routes"
+}, {
+  id: 4,
+  name: "Taper",
+  weeks: [13, 14],
+  dates: "Sep 21 – Oct 4",
+  intent: "Sharpen, shed fatigue",
+  finger: "Maintain intensity, cut volume",
+  pull: "↓",
+  climbing: "Quality redpoint feel"
+}, {
+  id: 5,
+  name: "Perform",
+  weeks: [15, 15],
+  dates: "Oct 5 – 11",
+  intent: "Send",
+  finger: "Primers only",
+  pull: "—",
+  climbing: "Smith Rock"
+}];
+var PHASE1_START = new Date("2026-06-29");
+function getWeekNum() {
+  var now = new Date();
+  var diff = Math.floor((now - PHASE1_START) / (7 * 86400000));
+  return Math.max(1, diff + 1);
+}
+function getPhase(wk) {
+  for (var i = 0; i < PHASES.length; i++) {
+    var p = PHASES[i];
+    if (wk >= p.weeks[0] && wk <= p.weeks[1]) return p;
+  }
+  return PHASES[PHASES.length - 1];
+}
+function isDeload(wk) {
+  return wk === 4 || wk === 8 || wk === 12;
+}
 
 /* Block pull progression tables (Phase 1, per hand) */
-function getBlockPullProg(baseLoad,weekNum){
-  const w=Math.min(weekNum,5);
-  const progs=[
-    {wk:1,sets:4,reps:4,pct:1.0,rpe:"7-8",note:"Establish, leave room"},
-    {wk:2,sets:5,reps:4,pct:1.055,rpe:"8",note:"+5 lb"},
-    {wk:3,sets:5,reps:3,pct:1.11,rpe:"8-9",note:"Add IM/MR pockets"},
-    {wk:4,sets:3,reps:3,pct:0.944,rpe:"6-7",note:"Deload – cut volume"},
-    {wk:5,sets:5,reps:3,pct:1.17,rpe:"9",note:"Re-test end of week"},
-  ];
-  const p=progs[w-1];
-  return{...p,load:Math.round(baseLoad*p.pct/2.5)*2.5};
+function getBlockPullProg(baseLoad, weekNum) {
+  var w = Math.min(weekNum, 5);
+  var progs = [{
+    wk: 1,
+    sets: 4,
+    reps: 4,
+    pct: 1.0,
+    rpe: "7-8",
+    note: "Establish, leave room"
+  }, {
+    wk: 2,
+    sets: 5,
+    reps: 4,
+    pct: 1.055,
+    rpe: "8",
+    note: "+5 lb"
+  }, {
+    wk: 3,
+    sets: 5,
+    reps: 3,
+    pct: 1.11,
+    rpe: "8-9",
+    note: "Add IM/MR pockets"
+  }, {
+    wk: 4,
+    sets: 3,
+    reps: 3,
+    pct: 0.944,
+    rpe: "6-7",
+    note: "Deload – cut volume"
+  }, {
+    wk: 5,
+    sets: 5,
+    reps: 3,
+    pct: 1.17,
+    rpe: "9",
+    note: "Re-test end of week"
+  }];
+  var p = progs[w - 1];
+  return _objectSpread(_objectSpread({}, p), {}, {
+    load: Math.round(baseLoad * p.pct / 2.5) * 2.5
+  });
 }
-function getWPullProg(baseLoad,weekNum){
-  const w=Math.min(weekNum,5);
-  const progs=[
-    {wk:1,sets:5,reps:5,add:0,note:"Last 2 sets hard = right"},
-    {wk:2,sets:5,reps:5,add:5,note:""},
-    {wk:3,sets:5,reps:5,add:10,note:""},
-    {wk:4,sets:3,reps:5,add:-5,note:"Deload"},
-    {wk:5,sets:5,reps:5,add:10,note:"Re-test 1RM end of week"},
-  ];
-  const p=progs[w-1];
-  return{...p,load:baseLoad+p.add};
+function getWPullProg(baseLoad, weekNum) {
+  var w = Math.min(weekNum, 5);
+  var progs = [{
+    wk: 1,
+    sets: 5,
+    reps: 5,
+    add: 0,
+    note: "Last 2 sets hard = right"
+  }, {
+    wk: 2,
+    sets: 5,
+    reps: 5,
+    add: 5,
+    note: ""
+  }, {
+    wk: 3,
+    sets: 5,
+    reps: 5,
+    add: 10,
+    note: ""
+  }, {
+    wk: 4,
+    sets: 3,
+    reps: 5,
+    add: -5,
+    note: "Deload"
+  }, {
+    wk: 5,
+    sets: 5,
+    reps: 5,
+    add: 10,
+    note: "Re-test 1RM end of week"
+  }];
+  var p = progs[w - 1];
+  return _objectSpread(_objectSpread({}, p), {}, {
+    load: baseLoad + p.add
+  });
 }
 
 /* ── STORAGE ── */
-const PFX="at5:";
-function load(k){try{const r=localStorage.getItem(PFX+k);return r?JSON.parse(r):{};}catch(e){return{};}}
-function save(k,d){try{localStorage.setItem(PFX+k,JSON.stringify(d));return true;}catch(e){return false;}}
-function getMondayOf(d){const dt=new Date(d);const day=dt.getDay();dt.setDate(dt.getDate()-day+(day===0?-6:1));dt.setHours(0,0,0,0);return dt;}
-function fmtWk(d){return d.toISOString().slice(0,10);}
-function getCurWk(){return fmtWk(getMondayOf(new Date()));}
-function displayWkLabel(wk){const s=new Date(wk+"T00:00:00");const e=new Date(s);e.setDate(e.getDate()+6);const f=d=>`${d.getMonth()+1}/${d.getDate()}`;return`${f(s)} – ${f(e)}`;}
-function listWeeks(){const ws=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(PFX))ws.push(k.replace(PFX,""));}return ws.sort().reverse();}
+var PFX = "at5:";
+function load(k) {
+  try {
+    var r = localStorage.getItem(PFX + k);
+    return r ? JSON.parse(r) : {};
+  } catch (e) {
+    return {};
+  }
+}
+function save(k, d) {
+  try {
+    localStorage.setItem(PFX + k, JSON.stringify(d));
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+function getMondayOf(d) {
+  var dt = new Date(d);
+  var day = dt.getDay();
+  dt.setDate(dt.getDate() - day + (day === 0 ? -6 : 1));
+  dt.setHours(0, 0, 0, 0);
+  return dt;
+}
+function fmtWk(d) {
+  return d.toISOString().slice(0, 10);
+}
+function getCurWk() {
+  return fmtWk(getMondayOf(new Date()));
+}
+function displayWkLabel(wk) {
+  var s = new Date(wk + "T00:00:00");
+  var e = new Date(s);
+  e.setDate(e.getDate() + 6);
+  var f = function f(d) {
+    return "".concat(d.getMonth() + 1, "/").concat(d.getDate());
+  };
+  return "".concat(f(s), " \u2013 ").concat(f(e));
+}
+function listWeeks() {
+  var ws = [];
+  for (var i = 0; i < localStorage.length; i++) {
+    var k = localStorage.key(i);
+    if (k && k.startsWith(PFX)) ws.push(k.replace(PFX, ""));
+  }
+  return ws.sort().reverse();
+}
 
 /* ── UI COMPONENTS ── */
-function Timer({seconds,label,color=C.accent}){
-  const[left,setLeft]=useState(seconds);const[running,setRunning]=useState(false);const[done,setDone]=useState(false);const iv=useRef(null);
-  useEffect(()=>{if(running&&left>0){iv.current=setInterval(()=>setLeft(l=>{if(l<=1){clearInterval(iv.current);setRunning(false);setDone(true);try{navigator.vibrate&&navigator.vibrate(200)}catch(e){};return 0;}return l-1;}),1000);}return()=>clearInterval(iv.current);},[running,left]);
-  const reset=e=>{e&&e.stopPropagation();setLeft(seconds);setRunning(false);setDone(false);};const toggle=()=>{if(done)reset();else setRunning(!running);};
-  const m=Math.floor(left/60),s=left%60;
-  return(<div style={{display:"flex",alignItems:"center",gap:4}}>
-    <button onClick={toggle} style={{background:done?C.green:running?C.red:C.card,border:`1px solid ${done?C.green:running?C.red:C.border}`,color:C.white,borderRadius:6,padding:"4px 8px",fontSize:11,fontWeight:700,cursor:"pointer",fontFamily:"monospace",minWidth:44}}>{done?"✓":`${m}:${s.toString().padStart(2,"0")}`}</button>
-    {label&&<span style={{fontSize:9,color:C.muted}}>{label}</span>}
-    {(running||done||left!==seconds)&&<button onClick={reset} style={{background:"none",border:"none",color:C.muted,fontSize:11,cursor:"pointer",padding:2}}>↺</button>}
-  </div>);
+function Timer(_ref) {
+  var seconds = _ref.seconds,
+    label = _ref.label,
+    _ref$color = _ref.color,
+    color = _ref$color === void 0 ? C.accent : _ref$color;
+  var _useState = useState(seconds),
+    _useState2 = _slicedToArray(_useState, 2),
+    left = _useState2[0],
+    setLeft = _useState2[1];
+  var _useState3 = useState(false),
+    _useState4 = _slicedToArray(_useState3, 2),
+    running = _useState4[0],
+    setRunning = _useState4[1];
+  var _useState5 = useState(false),
+    _useState6 = _slicedToArray(_useState5, 2),
+    done = _useState6[0],
+    setDone = _useState6[1];
+  var iv = useRef(null);
+  useEffect(function () {
+    if (running && left > 0) {
+      iv.current = setInterval(function () {
+        return setLeft(function (l) {
+          if (l <= 1) {
+            clearInterval(iv.current);
+            setRunning(false);
+            setDone(true);
+            try {
+              navigator.vibrate && navigator.vibrate(200);
+            } catch (e) {}
+            ;
+            return 0;
+          }
+          return l - 1;
+        });
+      }, 1000);
+    }
+    return function () {
+      return clearInterval(iv.current);
+    };
+  }, [running, left]);
+  var reset = function reset(e) {
+    e && e.stopPropagation();
+    setLeft(seconds);
+    setRunning(false);
+    setDone(false);
+  };
+  var toggle = function toggle() {
+    if (done) reset();else setRunning(!running);
+  };
+  var m = Math.floor(left / 60),
+    s = left % 60;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: toggle,
+    style: {
+      background: done ? C.green : running ? C.red : C.card,
+      border: "1px solid ".concat(done ? C.green : running ? C.red : C.border),
+      color: C.white,
+      borderRadius: 6,
+      padding: "4px 8px",
+      fontSize: 11,
+      fontWeight: 700,
+      cursor: "pointer",
+      fontFamily: "monospace",
+      minWidth: 44
+    }
+  }, done ? "✓" : "".concat(m, ":").concat(s.toString().padStart(2, "0"))), label && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9,
+      color: C.muted
+    }
+  }, label), (running || done || left !== seconds) && /*#__PURE__*/React.createElement("button", {
+    onClick: reset,
+    style: {
+      background: "none",
+      border: "none",
+      color: C.muted,
+      fontSize: 11,
+      cursor: "pointer",
+      padding: 2
+    }
+  }, "\u21BA"));
 }
-function Toggle({value,onChange,label}){
-  return(<button onClick={()=>onChange(!value)} style={{display:"flex",alignItems:"center",gap:4,background:"none",border:"none",cursor:"pointer",padding:0}}>
-    {label&&<span style={{fontSize:9,color:C.muted,fontWeight:600}}>{label}</span>}
-    <div style={{width:32,height:18,borderRadius:9,background:value?C.green:C.border,position:"relative",transition:"background 0.2s"}}>
-      <div style={{width:14,height:14,borderRadius:7,background:C.white,position:"absolute",top:2,left:value?16:2,transition:"left 0.2s"}}/>
-    </div>
-  </button>);
+function Toggle(_ref2) {
+  var value = _ref2.value,
+    onChange = _ref2.onChange,
+    label = _ref2.label;
+  return /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return onChange(!value);
+    },
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 4,
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      padding: 0
+    }
+  }, label && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9,
+      color: C.muted,
+      fontWeight: 600
+    }
+  }, label), /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 32,
+      height: 18,
+      borderRadius: 9,
+      background: value ? C.green : C.border,
+      position: "relative",
+      transition: "background 0.2s"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 14,
+      height: 14,
+      borderRadius: 7,
+      background: C.white,
+      position: "absolute",
+      top: 2,
+      left: value ? 16 : 2,
+      transition: "left 0.2s"
+    }
+  })));
 }
-function Counter({value,onChange,label,color=C.accent}){const v=value||0;return(
-  <div style={{display:"flex",alignItems:"center",gap:4}}>
-    {label&&<span style={{fontSize:9,color:C.muted,fontWeight:600}}>{label}</span>}
-    <button onClick={()=>onChange(Math.max(0,v-1))} style={{width:22,height:22,borderRadius:4,border:`1px solid ${C.border}`,background:C.card,color:C.muted,fontSize:14,cursor:"pointer",padding:0}}>−</button>
-    <span style={{minWidth:20,textAlign:"center",fontSize:13,fontWeight:700,color:v>0?color:C.muted,fontFamily:"monospace"}}>{v}</span>
-    <button onClick={()=>onChange(v+1)} style={{width:22,height:22,borderRadius:4,border:`1px solid ${color}`,background:color,color:C.white,fontSize:14,fontWeight:700,cursor:"pointer",padding:0}}>+</button>
-  </div>);
+function Counter(_ref3) {
+  var value = _ref3.value,
+    onChange = _ref3.onChange,
+    label = _ref3.label,
+    _ref3$color = _ref3.color,
+    color = _ref3$color === void 0 ? C.accent : _ref3$color;
+  var v = value || 0;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 4
+    }
+  }, label && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 9,
+      color: C.muted,
+      fontWeight: 600
+    }
+  }, label), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return onChange(Math.max(0, v - 1));
+    },
+    style: {
+      width: 22,
+      height: 22,
+      borderRadius: 4,
+      border: "1px solid ".concat(C.border),
+      background: C.card,
+      color: C.muted,
+      fontSize: 14,
+      cursor: "pointer",
+      padding: 0
+    }
+  }, "\u2212"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      minWidth: 20,
+      textAlign: "center",
+      fontSize: 13,
+      fontWeight: 700,
+      color: v > 0 ? color : C.muted,
+      fontFamily: "monospace"
+    }
+  }, v), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return onChange(v + 1);
+    },
+    style: {
+      width: 22,
+      height: 22,
+      borderRadius: 4,
+      border: "1px solid ".concat(color),
+      background: color,
+      color: C.white,
+      fontSize: 14,
+      fontWeight: 700,
+      cursor: "pointer",
+      padding: 0
+    }
+  }, "+"));
 }
-function RPE({value,onChange}){const cols={1:C.green,2:C.green,3:"#2ea043",4:"#56d364",5:C.yellow,6:C.orange,7:"#e3862a",8:C.red,9:"#da3633",10:"#b62324"};return(
-  <div style={{display:"flex",gap:2,flexWrap:"wrap"}}>{[1,2,3,4,5,6,7,8,9,10].map(n=>(<button key={n} onClick={()=>onChange(value===n?null:n)} style={{width:22,height:22,borderRadius:4,border:"none",fontSize:10,fontWeight:700,cursor:"pointer",background:value===n?cols[n]:C.card,color:value===n?C.white:C.muted}}>{n}</button>))}</div>);
+function RPE(_ref4) {
+  var value = _ref4.value,
+    onChange = _ref4.onChange;
+  var cols = {
+    1: C.green,
+    2: C.green,
+    3: "#2ea043",
+    4: "#56d364",
+    5: C.yellow,
+    6: C.orange,
+    7: "#e3862a",
+    8: C.red,
+    9: "#da3633",
+    10: "#b62324"
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 2,
+      flexWrap: "wrap"
+    }
+  }, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(function (n) {
+    return /*#__PURE__*/React.createElement("button", {
+      key: n,
+      onClick: function onClick() {
+        return onChange(value === n ? null : n);
+      },
+      style: {
+        width: 22,
+        height: 22,
+        borderRadius: 4,
+        border: "none",
+        fontSize: 10,
+        fontWeight: 700,
+        cursor: "pointer",
+        background: value === n ? cols[n] : C.card,
+        color: value === n ? C.white : C.muted
+      }
+    }, n);
+  }));
 }
-function Num({value,onChange,placeholder,w=44}){return <input type="number" inputMode="numeric" value={value!=null?value:""}placeholder={placeholder}onChange={e=>onChange(e.target.value)}style={{width:w,height:28,borderRadius:5,border:`1px solid ${C.border}`,background:C.bg,color:C.accent,textAlign:"center",fontSize:13,fontWeight:600,outline:"none",fontFamily:"monospace"}}/>;}
-function Txt({value,onChange,placeholder,w=80}){return <input type="text" value={value!=null?value:""}placeholder={placeholder}onChange={e=>onChange(e.target.value)}style={{width:w,height:28,borderRadius:5,border:`1px solid ${C.border}`,background:C.bg,color:C.text,padding:"0 6px",fontSize:12,outline:"none"}}/>;}
-function Notes({value,onChange,placeholder,rows=2}){return <textarea value={value!=null?value:""}placeholder={placeholder}onChange={e=>onChange(e.target.value)}rows={rows}style={{width:"100%",borderRadius:5,border:`1px solid ${C.border}`,background:C.bg,color:C.text,padding:"6px 8px",fontSize:12,outline:"none",fontFamily:"inherit",minHeight:28*rows,boxSizing:"border-box"}}/>;}
-function Section({title,note,color,children}){return(<div style={{marginBottom:14}}><div style={{fontSize:11,fontWeight:800,color:color||C.accent,padding:"6px 0 3px",borderBottom:`2px solid ${color||C.accent}`,marginBottom:5,textTransform:"uppercase",letterSpacing:.5}}>{title}</div>{note&&<div style={{fontSize:10,color:C.muted,fontStyle:"italic",marginBottom:5}}>{note}</div>}{children}</div>);}
+function Num(_ref5) {
+  var value = _ref5.value,
+    _onChange = _ref5.onChange,
+    placeholder = _ref5.placeholder,
+    _ref5$w = _ref5.w,
+    w = _ref5$w === void 0 ? 44 : _ref5$w;
+  return /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    inputMode: "numeric",
+    value: value != null ? value : "",
+    placeholder: placeholder,
+    onChange: function onChange(e) {
+      return _onChange(e.target.value);
+    },
+    style: {
+      width: w,
+      height: 28,
+      borderRadius: 5,
+      border: "1px solid ".concat(C.border),
+      background: C.bg,
+      color: C.accent,
+      textAlign: "center",
+      fontSize: 13,
+      fontWeight: 600,
+      outline: "none",
+      fontFamily: "monospace"
+    }
+  });
+}
+function Txt(_ref6) {
+  var value = _ref6.value,
+    _onChange2 = _ref6.onChange,
+    placeholder = _ref6.placeholder,
+    _ref6$w = _ref6.w,
+    w = _ref6$w === void 0 ? 80 : _ref6$w;
+  return /*#__PURE__*/React.createElement("input", {
+    type: "text",
+    value: value != null ? value : "",
+    placeholder: placeholder,
+    onChange: function onChange(e) {
+      return _onChange2(e.target.value);
+    },
+    style: {
+      width: w,
+      height: 28,
+      borderRadius: 5,
+      border: "1px solid ".concat(C.border),
+      background: C.bg,
+      color: C.text,
+      padding: "0 6px",
+      fontSize: 12,
+      outline: "none"
+    }
+  });
+}
+function Notes(_ref7) {
+  var value = _ref7.value,
+    _onChange3 = _ref7.onChange,
+    placeholder = _ref7.placeholder,
+    _ref7$rows = _ref7.rows,
+    rows = _ref7$rows === void 0 ? 2 : _ref7$rows;
+  return /*#__PURE__*/React.createElement("textarea", {
+    value: value != null ? value : "",
+    placeholder: placeholder,
+    onChange: function onChange(e) {
+      return _onChange3(e.target.value);
+    },
+    rows: rows,
+    style: {
+      width: "100%",
+      borderRadius: 5,
+      border: "1px solid ".concat(C.border),
+      background: C.bg,
+      color: C.text,
+      padding: "6px 8px",
+      fontSize: 12,
+      outline: "none",
+      fontFamily: "inherit",
+      minHeight: 28 * rows,
+      boxSizing: "border-box"
+    }
+  });
+}
+function Section(_ref8) {
+  var title = _ref8.title,
+    note = _ref8.note,
+    color = _ref8.color,
+    children = _ref8.children;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 800,
+      color: color || C.accent,
+      padding: "6px 0 3px",
+      borderBottom: "2px solid ".concat(color || C.accent),
+      marginBottom: 5,
+      textTransform: "uppercase",
+      letterSpacing: .5
+    }
+  }, title), note && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: C.muted,
+      fontStyle: "italic",
+      marginBottom: 5
+    }
+  }, note), children);
+}
 
 /* Adjustable weight component */
-function AdjWeight({prescribed,actual,onChange,color=C.accent}){
-  const changed=actual!=null&&actual!==""&&Number(actual)!==Number(prescribed);
-  return(<div style={{display:"flex",alignItems:"center",gap:4}}>
-    <span style={{fontSize:11,fontFamily:"monospace",color:changed?C.muted:C.white,textDecoration:changed?"line-through":"none",fontWeight:600}}>@{prescribed}</span>
-    {changed&&<span style={{fontSize:12,fontFamily:"monospace",color:C.yellow,fontWeight:800}}>→{actual}</span>}
-    <input type="number" inputMode="numeric" value={actual??""}placeholder={prescribed}onChange={e=>onChange(e.target.value)}
-      style={{width:48,height:24,borderRadius:4,border:`1px solid ${changed?C.yellow:C.border}`,background:changed?"rgba(227,179,65,0.1)":C.bg,color:changed?C.yellow:C.accent,textAlign:"center",fontSize:12,fontWeight:600,outline:"none",fontFamily:"monospace"}}/>
-  </div>);
+function AdjWeight(_ref9) {
+  var prescribed = _ref9.prescribed,
+    actual = _ref9.actual,
+    _onChange4 = _ref9.onChange,
+    _ref9$color = _ref9.color,
+    color = _ref9$color === void 0 ? C.accent : _ref9$color;
+  var changed = actual != null && actual !== "" && Number(actual) !== Number(prescribed);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      fontFamily: "monospace",
+      color: changed ? C.muted : C.white,
+      textDecoration: changed ? "line-through" : "none",
+      fontWeight: 600
+    }
+  }, "@", prescribed), changed && /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      fontFamily: "monospace",
+      color: C.yellow,
+      fontWeight: 800
+    }
+  }, "\u2192", actual), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    inputMode: "numeric",
+    value: actual !== null && actual !== void 0 ? actual : "",
+    placeholder: prescribed,
+    onChange: function onChange(e) {
+      return _onChange4(e.target.value);
+    },
+    style: {
+      width: 48,
+      height: 24,
+      borderRadius: 4,
+      border: "1px solid ".concat(changed ? C.yellow : C.border),
+      background: changed ? "rgba(227,179,65,0.1)" : C.bg,
+      color: changed ? C.yellow : C.accent,
+      textAlign: "center",
+      fontSize: 12,
+      fontWeight: 600,
+      outline: "none",
+      fontFamily: "monospace"
+    }
+  }));
 }
 
 /* Exercise row with adjustable weight */
-function LiftRow({name,setsCount,prescribed,defaultLoad,rest,data,update,color=C.accent,isWarmup=false}){
-  return(<div style={{background:C.card,borderRadius:7,padding:"7px 9px",marginBottom:3,borderLeft:isWarmup?`2px solid ${C.border}`:`2px solid ${color}`,opacity:isWarmup?0.8:1}}>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,flexWrap:"wrap",gap:4}}>
-      <span style={{fontSize:12,fontWeight:700,color:C.white}}>{isWarmup?"⬧ Warm-up: ":""}{name}</span>
-      <AdjWeight prescribed={defaultLoad} actual={data.load} onChange={v=>update("load",v)} color={color}/>
-    </div>
-    <div style={{fontSize:10,color:C.muted,marginBottom:3,fontFamily:"monospace"}}>{prescribed}</div>
-    {Array.from({length:setsCount},(_,i)=>i+1).map(sn=>(<div key={sn} style={{display:"flex",alignItems:"center",gap:4,marginBottom:2}}>
-      <span style={{fontSize:9,color:C.muted,width:28}}>Set {sn}</span>
-      <Num value={data[`r${sn}`]} onChange={v=>update(`r${sn}`,v)} placeholder="reps" w={38}/>
-      <div style={{flex:1}}><RPE value={data[`rpe${sn}`]} onChange={v=>update(`rpe${sn}`,v)}/></div>
-      <Timer seconds={rest} label="Rest" color={color}/>
-    </div>))}
-    <Notes value={data.notes} onChange={v=>update("notes",v)} placeholder="Notes" rows={2}/>
-  </div>);
+function LiftRow(_ref0) {
+  var name = _ref0.name,
+    setsCount = _ref0.setsCount,
+    prescribed = _ref0.prescribed,
+    defaultLoad = _ref0.defaultLoad,
+    rest = _ref0.rest,
+    data = _ref0.data,
+    update = _ref0.update,
+    _ref0$color = _ref0.color,
+    color = _ref0$color === void 0 ? C.accent : _ref0$color,
+    _ref0$isWarmup = _ref0.isWarmup,
+    isWarmup = _ref0$isWarmup === void 0 ? false : _ref0$isWarmup;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.card,
+      borderRadius: 7,
+      padding: "7px 9px",
+      marginBottom: 3,
+      borderLeft: isWarmup ? "2px solid ".concat(C.border) : "2px solid ".concat(color),
+      opacity: isWarmup ? 0.8 : 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 3,
+      flexWrap: "wrap",
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      fontWeight: 700,
+      color: C.white
+    }
+  }, isWarmup ? "⬧ Warm-up: " : "", name), /*#__PURE__*/React.createElement(AdjWeight, {
+    prescribed: defaultLoad,
+    actual: data.load,
+    onChange: function onChange(v) {
+      return update("load", v);
+    },
+    color: color
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: C.muted,
+      marginBottom: 3,
+      fontFamily: "monospace"
+    }
+  }, prescribed), Array.from({
+    length: setsCount
+  }, function (_, i) {
+    return i + 1;
+  }).map(function (sn) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: sn,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 4,
+        marginBottom: 2
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9,
+        color: C.muted,
+        width: 28
+      }
+    }, "Set ", sn), /*#__PURE__*/React.createElement(Num, {
+      value: data["r".concat(sn)],
+      onChange: function onChange(v) {
+        return update("r".concat(sn), v);
+      },
+      placeholder: "reps",
+      w: 38
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1
+      }
+    }, /*#__PURE__*/React.createElement(RPE, {
+      value: data["rpe".concat(sn)],
+      onChange: function onChange(v) {
+        return update("rpe".concat(sn), v);
+      }
+    })), /*#__PURE__*/React.createElement(Timer, {
+      seconds: rest,
+      label: "Rest",
+      color: color
+    }));
+  }), /*#__PURE__*/React.createElement(Notes, {
+    value: data.notes,
+    onChange: function onChange(v) {
+      return update("notes", v);
+    },
+    placeholder: "Notes",
+    rows: 2
+  }));
 }
 
 /* Block pull exercise row */
-function BlockPullRow({name,prog,data,update,color=C.accent}){
-  const changed=data.adjLoad!=null&&data.adjLoad!==""&&Number(data.adjLoad)!==prog.load;
-  const dispLoad=changed?data.adjLoad:prog.load;
-  return(<div style={{background:C.card,borderRadius:7,padding:"8px 10px",marginBottom:4,borderLeft:`2px solid ${color}`}}>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,flexWrap:"wrap",gap:4}}>
-      <span style={{fontSize:12,fontWeight:700,color:C.white}}>{name}</span>
-      <div style={{display:"flex",alignItems:"center",gap:4}}>
-        <span style={{fontSize:10,color:C.muted,fontFamily:"monospace"}}>{prog.sets}×{prog.reps}</span>
-        <AdjWeight prescribed={prog.load} actual={data.adjLoad} onChange={v=>update("adjLoad",v)} color={color}/>
-      </div>
-    </div>
-    <div style={{fontSize:10,color:C.teal,marginBottom:3}}>RPE {prog.rpe} · {prog.note}</div>
-    {Array.from({length:prog.sets},(_,i)=>i+1).map(sn=>(<div key={sn} style={{display:"flex",alignItems:"center",gap:4,marginBottom:2}}>
-      <span style={{fontSize:9,color:C.muted,width:28}}>Set {sn}</span>
-      <Toggle value={data[`rd${sn}`]} onChange={v=>update(`rd${sn}`,v)} label="R"/>
-      <Toggle value={data[`ld${sn}`]} onChange={v=>update(`ld${sn}`,v)} label="L"/>
-      <Num value={data[`reps${sn}`]} onChange={v=>update(`reps${sn}`,v)} placeholder={`${prog.reps}`} w={36}/>
-      <RPE value={data[`rpe${sn}`]} onChange={v=>update(`rpe${sn}`,v)}/>
-      <Timer seconds={180} label="Rest" color={color}/>
-    </div>))}
-    <Notes value={data.notes} onChange={v=>update("notes",v)} placeholder="Notes" rows={2}/>
-  </div>);
+function BlockPullRow(_ref1) {
+  var name = _ref1.name,
+    prog = _ref1.prog,
+    data = _ref1.data,
+    update = _ref1.update,
+    _ref1$color = _ref1.color,
+    color = _ref1$color === void 0 ? C.accent : _ref1$color;
+  var changed = data.adjLoad != null && data.adjLoad !== "" && Number(data.adjLoad) !== prog.load;
+  var dispLoad = changed ? data.adjLoad : prog.load;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.card,
+      borderRadius: 7,
+      padding: "8px 10px",
+      marginBottom: 4,
+      borderLeft: "2px solid ".concat(color)
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 3,
+      flexWrap: "wrap",
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      fontWeight: 700,
+      color: C.white
+    }
+  }, name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      color: C.muted,
+      fontFamily: "monospace"
+    }
+  }, prog.sets, "\xD7", prog.reps), /*#__PURE__*/React.createElement(AdjWeight, {
+    prescribed: prog.load,
+    actual: data.adjLoad,
+    onChange: function onChange(v) {
+      return update("adjLoad", v);
+    },
+    color: color
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 10,
+      color: C.teal,
+      marginBottom: 3
+    }
+  }, "RPE ", prog.rpe, " \xB7 ", prog.note), Array.from({
+    length: prog.sets
+  }, function (_, i) {
+    return i + 1;
+  }).map(function (sn) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: sn,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 4,
+        marginBottom: 2
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9,
+        color: C.muted,
+        width: 28
+      }
+    }, "Set ", sn), /*#__PURE__*/React.createElement(Toggle, {
+      value: data["rd".concat(sn)],
+      onChange: function onChange(v) {
+        return update("rd".concat(sn), v);
+      },
+      label: "R"
+    }), /*#__PURE__*/React.createElement(Toggle, {
+      value: data["ld".concat(sn)],
+      onChange: function onChange(v) {
+        return update("ld".concat(sn), v);
+      },
+      label: "L"
+    }), /*#__PURE__*/React.createElement(Num, {
+      value: data["reps".concat(sn)],
+      onChange: function onChange(v) {
+        return update("reps".concat(sn), v);
+      },
+      placeholder: "".concat(prog.reps),
+      w: 36
+    }), /*#__PURE__*/React.createElement(RPE, {
+      value: data["rpe".concat(sn)],
+      onChange: function onChange(v) {
+        return update("rpe".concat(sn), v);
+      }
+    }), /*#__PURE__*/React.createElement(Timer, {
+      seconds: 180,
+      label: "Rest",
+      color: color
+    }));
+  }), /*#__PURE__*/React.createElement(Notes, {
+    value: data.notes,
+    onChange: function onChange(v) {
+      return update("notes", v);
+    },
+    placeholder: "Notes",
+    rows: 2
+  }));
 }
-
-const DAYS_MAP={MON:"MON",TUE:"TUE",WED:"WED",THU:"THU",FRI:"FRI",SAT:"SAT",SUN:"SUN"};
-const DAYS_CONF={
-  MON:{label:"M",title:"Limit Bouldering + Pull + Core",color:C.red},
-  TUE:{label:"T",title:"Push + Legs + Shoulders",color:C.purple},
-  WED:{label:"W",title:"Rest",color:C.muted},
-  THU:{label:"Th",title:"Block Pulls + Pull",color:C.accent},
-  FRI:{label:"F",title:"Shoulders + Core",color:C.teal},
-  SAT:{label:"S",title:"Projects / Outdoor",color:C.yellow},
-  SUN:{label:"Su",title:"Rest",color:C.muted},
+var DAYS_MAP = {
+  MON: "MON",
+  TUE: "TUE",
+  WED: "WED",
+  THU: "THU",
+  FRI: "FRI",
+  SAT: "SAT",
+  SUN: "SUN"
+};
+var DAYS_CONF = {
+  MON: {
+    label: "M",
+    title: "Limit Bouldering + Pull + Core",
+    color: C.red
+  },
+  TUE: {
+    label: "T",
+    title: "Push + Legs + Shoulders",
+    color: C.purple
+  },
+  WED: {
+    label: "W",
+    title: "Rest",
+    color: C.muted
+  },
+  THU: {
+    label: "Th",
+    title: "Block Pulls + Pull",
+    color: C.accent
+  },
+  FRI: {
+    label: "F",
+    title: "Shoulders + Core",
+    color: C.teal
+  },
+  SAT: {
+    label: "S",
+    title: "Projects / Outdoor",
+    color: C.yellow
+  },
+  SUN: {
+    label: "Su",
+    title: "Rest",
+    color: C.muted
+  }
 };
 
 /* ── MAIN APP ── */
-function App(){
-  const[weekKey,setWeekKey]=useState(getCurWk());
-  const[data,setData]=useState(()=>load(getCurWk()));
-  const[day,setDay]=useState(()=>{const m={1:"MON",2:"TUE",3:"WED",4:"THU",5:"FRI",6:"SAT",0:"SUN"};return m[new Date().getDay()]||"MON";});
-  const[status,setStatus]=useState("idle");
-  const[showWeeks,setShowWeeks]=useState(false);
-  const[showMacro,setShowMacro]=useState(false);
-  const[swapped,setSwapped]=useState(false);
-  const saveTimer=useRef(null);
-
-  const weekNum=useMemo(()=>{const wkDate=new Date(weekKey+"T00:00:00");const diff=Math.floor((wkDate-PHASE1_START)/(7*86400000));return Math.max(1,diff+1);},[weekKey]);
-  const phase=getPhase(weekNum);
-  const deload=isDeload(weekNum);
-
-  useEffect(()=>{const d=load(weekKey);setData(d);if(d._swapped)setSwapped(true);else setSwapped(false);},[weekKey]);
-
-  const persist=useCallback(nd=>{if(saveTimer.current)clearTimeout(saveTimer.current);saveTimer.current=setTimeout(()=>{const ok=save(weekKey,nd);setStatus(ok?"saved":"error");setTimeout(()=>setStatus("idle"),1500);},300);},[weekKey]);
-  const s=(k,v)=>{setData(p=>{const n={...p,[k]:v};persist(n);return n;});};
-  const g=k=>data[k]||{};
-  const gv=k=>data[k];
-  const u=(prefix,k,v)=>{const cur=data[prefix]||{};const n={...data,[prefix]:{...cur,[k]:v}};setData(n);persist(n);};
+function App() {
+  var _useState7 = useState(getCurWk()),
+    _useState8 = _slicedToArray(_useState7, 2),
+    weekKey = _useState8[0],
+    setWeekKey = _useState8[1];
+  var _useState9 = useState(function () {
+      return load(getCurWk());
+    }),
+    _useState0 = _slicedToArray(_useState9, 2),
+    data = _useState0[0],
+    setData = _useState0[1];
+  var _useState1 = useState(function () {
+      var m = {
+        1: "MON",
+        2: "TUE",
+        3: "WED",
+        4: "THU",
+        5: "FRI",
+        6: "SAT",
+        0: "SUN"
+      };
+      return m[new Date().getDay()] || "MON";
+    }),
+    _useState10 = _slicedToArray(_useState1, 2),
+    day = _useState10[0],
+    setDay = _useState10[1];
+  var _useState11 = useState("idle"),
+    _useState12 = _slicedToArray(_useState11, 2),
+    status = _useState12[0],
+    setStatus = _useState12[1];
+  var _useState13 = useState(false),
+    _useState14 = _slicedToArray(_useState13, 2),
+    showWeeks = _useState14[0],
+    setShowWeeks = _useState14[1];
+  var _useState15 = useState(false),
+    _useState16 = _slicedToArray(_useState15, 2),
+    showMacro = _useState16[0],
+    setShowMacro = _useState16[1];
+  var _useState17 = useState(false),
+    _useState18 = _slicedToArray(_useState17, 2),
+    swapped = _useState18[0],
+    setSwapped = _useState18[1];
+  var saveTimer = useRef(null);
+  var weekNum = useMemo(function () {
+    var wkDate = new Date(weekKey + "T00:00:00");
+    var diff = Math.floor((wkDate - PHASE1_START) / (7 * 86400000));
+    return Math.max(1, diff + 1);
+  }, [weekKey]);
+  var phase = getPhase(weekNum);
+  var deload = isDeload(weekNum);
+  useEffect(function () {
+    var d = load(weekKey);
+    setData(d);
+    if (d._swapped) setSwapped(true);else setSwapped(false);
+  }, [weekKey]);
+  var persist = useCallback(function (nd) {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(function () {
+      var ok = save(weekKey, nd);
+      setStatus(ok ? "saved" : "error");
+      setTimeout(function () {
+        return setStatus("idle");
+      }, 1500);
+    }, 300);
+  }, [weekKey]);
+  var s = function s(k, v) {
+    setData(function (p) {
+      var n = _objectSpread(_objectSpread({}, p), {}, _defineProperty({}, k, v));
+      persist(n);
+      return n;
+    });
+  };
+  var g = function g(k) {
+    return data[k] || {};
+  };
+  var gv = function gv(k) {
+    return data[k];
+  };
+  var u = function u(prefix, k, v) {
+    var cur = data[prefix] || {};
+    var n = _objectSpread(_objectSpread({}, data), {}, _defineProperty({}, prefix, _objectSpread(_objectSpread({}, cur), {}, _defineProperty({}, k, v))));
+    setData(n);
+    persist(n);
+  };
 
   // Swap Mon/Tue
-  const doSwap=()=>{const ns=!swapped;setSwapped(ns);const n={...data,_swapped:ns};setData(n);persist(n);};
+  var doSwap = function doSwap() {
+    var ns = !swapped;
+    setSwapped(ns);
+    var n = _objectSpread(_objectSpread({}, data), {}, {
+      _swapped: ns
+    });
+    setData(n);
+    persist(n);
+  };
 
   // Determine actual day mapping based on swap
-  const getActualDay=(dayCode)=>{
-    if(!swapped)return dayCode;
-    if(dayCode==="MON")return"TUE";
-    if(dayCode==="TUE")return"MON";
+  var getActualDay = function getActualDay(dayCode) {
+    if (!swapped) return dayCode;
+    if (dayCode === "MON") return "TUE";
+    if (dayCode === "TUE") return "MON";
     return dayCode;
   };
-  const actualDay=getActualDay(day);
+  var actualDay = getActualDay(day);
 
   // Leg alternation for Tuesday
-  const legWeekA=(weekNum%2===1); // odd weeks = DL+BSS, even = Squat+SLDL
-  const manualLegSwap=gv("legSwap");
-  const showLegA=manualLegSwap!=null?manualLegSwap:legWeekA;
-
-  const exportAll=()=>{const all={};var wks=listWeeks();wks.forEach(function(wk){all[wk]=load(wk);});const blob=new Blob([JSON.stringify(all,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="tracker-"+fmtWk(new Date())+".json";a.click();URL.revokeObjectURL(url);};
-  const importData=()=>{const inp=document.createElement("input");inp.type="file";inp.accept=".json";inp.onchange=function(e){const f=e.target.files[0];if(!f)return;var reader=new FileReader();reader.onload=function(ev){try{const o=JSON.parse(ev.target.result);Object.keys(o).forEach(function(wk){save(wk,o[wk]);});setData(load(weekKey));alert("Imported!");}catch(e){alert("Failed");}};reader.readAsText(f);};inp.click();};
-
-  const stC={saved:C.green,error:C.red};const stT={saved:"Saved ✓",error:"Failed!",idle:""};
+  var legWeekA = weekNum % 2 === 1; // odd weeks = DL+BSS, even = Squat+SLDL
+  var manualLegSwap = gv("legSwap");
+  var showLegA = manualLegSwap != null ? manualLegSwap : legWeekA;
+  var exportAll = function exportAll() {
+    var all = {};
+    var wks = listWeeks();
+    wks.forEach(function (wk) {
+      all[wk] = load(wk);
+    });
+    var blob = new Blob([JSON.stringify(all, null, 2)], {
+      type: "application/json"
+    });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "tracker-" + fmtWk(new Date()) + ".json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  var importData = function importData() {
+    var inp = document.createElement("input");
+    inp.type = "file";
+    inp.accept = ".json";
+    inp.onchange = function (e) {
+      var f = e.target.files[0];
+      if (!f) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          var o = JSON.parse(ev.target.result);
+          Object.keys(o).forEach(function (wk) {
+            save(wk, o[wk]);
+          });
+          setData(load(weekKey));
+          alert("Imported!");
+        } catch (e) {
+          alert("Failed");
+        }
+      };
+      reader.readAsText(f);
+    };
+    inp.click();
+  };
+  var stC = {
+    saved: C.green,
+    error: C.red
+  };
+  var stT = {
+    saved: "Saved ✓",
+    error: "Failed!",
+    idle: ""
+  };
 
   // Block pull base loads
-  const BASES={hc:90,oh:75,im:55,mr:80,pinch:40,roller:30};
+  var BASES = {
+    hc: 90,
+    oh: 75,
+    im: 55,
+    mr: 80,
+    pinch: 40,
+    roller: 30
+  };
   // Allow user to override bases
-  const getBase=(grip)=>{const ov=gv(`base_${grip}`);return ov!=null?Number(ov):BASES[grip];};
-
-  return(<div style={{background:C.bg,minHeight:"100vh",color:C.text}}>
-    {/* HEADER */}
-    <div style={{background:C.card,padding:"10px 10px 6px",position:"sticky",top:0,zIndex:100,borderBottom:`1px solid ${C.border}`}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-        <button onClick={()=>setShowWeeks(!showWeeks)} style={{background:"none",border:"none",textAlign:"left",cursor:"pointer",padding:0}}>
-          <div style={{fontSize:9,color:C.muted,fontWeight:600,letterSpacing:1}}>PHASE {phase.id}: {phase.name.toUpperCase()} · WEEK {weekNum}{deload?" (DELOAD)":""} ▾</div>
-          <div style={{fontSize:14,fontWeight:800,color:C.white}}>{displayWkLabel(weekKey)}</div>
-        </button>
-        <div style={{textAlign:"right"}}>
-          <span style={{fontSize:10,fontWeight:700,color:stC[status]||C.muted}}>{stT[status]}</span>
-          <button onClick={()=>setShowMacro(!showMacro)} style={{display:"block",background:"none",border:`1px solid ${C.border}`,color:C.accent,borderRadius:4,padding:"2px 6px",fontSize:9,cursor:"pointer",marginTop:2}}>📊 Plan</button>
-        </div>
-      </div>
-
-      {/* Swap indicator */}
-      {swapped&&<div style={{background:C.orange,borderRadius:4,padding:"3px 8px",marginBottom:4,fontSize:10,fontWeight:700,color:C.bg,textAlign:"center"}}>⇄ Mon/Tue SWAPPED (weekend outdoor recovery)</div>}
-
-      {/* Week navigator */}
-      {showWeeks&&(<div style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:6,padding:6,marginBottom:6,maxHeight:200,overflowY:"auto"}}>
-        {weekKey!==getCurWk()&&<button onClick={()=>{setWeekKey(getCurWk());setShowWeeks(false);}}style={{display:"block",width:"100%",textAlign:"left",background:C.green,border:"none",color:C.white,padding:"6px 8px",fontSize:12,fontWeight:700,cursor:"pointer",borderRadius:4,marginBottom:4}}>→ Current week</button>}
-        {listWeeks().map(wk=>(<button key={wk}onClick={()=>{setWeekKey(wk);setShowWeeks(false);}}style={{display:"block",width:"100%",textAlign:"left",background:wk===weekKey?C.accent:"transparent",border:"none",color:wk===weekKey?C.white:C.text,padding:"4px 8px",fontSize:11,cursor:"pointer",borderRadius:3}}>{displayWkLabel(wk)} {wk===getCurWk()?"(current)":""}</button>))}
-        <div style={{borderTop:`1px solid ${C.border}`,marginTop:4,paddingTop:4,display:"flex",gap:4}}>
-          <button onClick={exportAll}style={{flex:1,background:C.card,border:`1px solid ${C.border}`,color:C.text,padding:"4px",fontSize:10,cursor:"pointer",borderRadius:3}}>📥 Export</button>
-          <button onClick={importData}style={{flex:1,background:C.card,border:`1px solid ${C.border}`,color:C.text,padding:"4px",fontSize:10,cursor:"pointer",borderRadius:3}}>📤 Import</button>
-          <button onClick={doSwap}style={{flex:1.5,background:swapped?C.orange:C.card,border:`1px solid ${swapped?C.orange:C.border}`,color:swapped?C.bg:C.text,padding:"4px",fontSize:10,cursor:"pointer",borderRadius:3,fontWeight:700}}>⇄ {swapped?"Unswap":"Swap"} Mon/Tue</button>
-        </div>
-      </div>)}
-
-      {/* Macrocycle view */}
-      {showMacro&&(<div style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:6,padding:8,marginBottom:6,maxHeight:300,overflowY:"auto"}}>
-        <div style={{fontSize:12,fontWeight:800,color:C.white,marginBottom:6}}>MACROCYCLE</div>
-        {PHASES.map(p=>{const isCur=p.id===phase.id;return(
-          <div key={p.id}style={{background:isCur?`${C.accent}22`:C.card,border:isCur?`1px solid ${C.accent}`:`1px solid ${C.border}`,borderRadius:6,padding:8,marginBottom:4}}>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}>
-              <span style={{fontSize:12,fontWeight:800,color:isCur?C.accent:C.white}}>Phase {p.id}: {p.name}{isCur?" ← NOW":""}</span>
-              <span style={{fontSize:10,color:C.muted}}>Wks {p.weeks[0]}–{p.weeks[1]}</span>
-            </div>
-            <div style={{fontSize:10,color:C.muted}}>{p.dates}</div>
-            <div style={{fontSize:10,color:C.text,marginTop:3}}>
-              <span style={{color:C.accent}}>Finger:</span> {p.finger} · <span style={{color:C.green}}>Pull:</span> {p.pull} · <span style={{color:C.yellow}}>Climbing:</span> {p.climbing}
-            </div>
-          </div>);
-        })}
-        {/* Upcoming weeks for current phase */}
-        <div style={{fontSize:11,fontWeight:700,color:C.teal,marginTop:6,marginBottom:4}}>PHASE {phase.id} WEEK PROGRESSION</div>
-        {Array.from({length:phase.weeks[1]-phase.weeks[0]+1},(_,i)=>phase.weeks[0]+i).map(w=>{
-          const hcP=getBlockPullProg(getBase("hc"),w);const isCur=w===weekNum;
-          return(<div key={w}style={{display:"flex",gap:6,padding:"3px 6px",fontSize:10,color:isCur?C.white:C.muted,background:isCur?`${C.accent}22`:"transparent",borderRadius:3}}>
-            <span style={{width:50,fontWeight:700}}>Wk {w}{isDeload(w)?" (D)":""}</span>
-            <span style={{width:50}}>{hcP.sets}×{hcP.reps}</span>
-            <span style={{width:50}}>~{hcP.load}lb</span>
-            <span style={{flex:1}}>{hcP.note}</span>
-          </div>);
-        })}
-      </div>)}
-
-      {/* Day tabs */}
-      <div style={{display:"flex",gap:2}}>
-        {Object.entries(DAYS_CONF).map(([k,d])=>{
-          const label=swapped?(k==="MON"?"T→M":k==="TUE"?"M→T":d.label):d.label;
-          return(<button key={k}onClick={()=>setDay(k)}style={{flex:1,padding:"5px 0",borderRadius:5,border:"none",cursor:"pointer",background:k===day?d.color:"transparent",color:k===day?C.white:C.muted,fontSize:11,fontWeight:800}}>{label}</button>);
-        })}
-      </div>
-    </div>
-
-    {/* CONTENT */}
-    <div style={{padding:"8px 8px 80px"}}>
-      {/* Day header */}
-      {DAYS_CONF[day]&&day!=="WED"&&day!=="SUN"&&(
-        <div style={{background:DAYS_CONF[day].color,borderRadius:8,padding:"8px 12px",marginBottom:8,opacity:0.9}}>
-          <div style={{fontSize:16,fontWeight:800,color:C.white}}>{DAYS_CONF[day].title}</div>
-          {deload&&<div style={{fontSize:11,color:"rgba(255,255,255,0.7)",fontWeight:700}}>DELOAD WEEK — reduce volume</div>}
-        </div>
-      )}
-
-      {/* REST DAYS */}
-      {(day==="WED"||day==="SUN")&&(
-        <Section title="Rest Day" color={C.muted}>
-          <div style={{background:C.card,borderRadius:8,padding:14,fontSize:13,lineHeight:1.6}}>
-            <p style={{marginTop:0}}>Recovery day. Optional: easy walk, mobility routine, massage gun work.</p>
-            <Notes value={gv(`${day.toLowerCase()}-notes`)} onChange={v=>s(`${day.toLowerCase()}-notes`,v)} placeholder="Recovery notes, how you're feeling..." rows={4}/>
-          </div>
-        </Section>
-      )}
-
-      {/* ═══ MONDAY: Limit Bouldering + Pull + Core ═══ */}
-      {day==="MON"&&(<>
-        <Section title="Limit Bouldering — Tension Board 2" note="30-40° | V6-V8 | 3-5 min rest | 6 problems" color={C.red}>
-          {[1,2,3,4,5,6].map(p=>{
-            const pk=`m-p${p}`,pd=g(pk),up=(k,v)=>s(pk,{...pd,[k]:v});
-            return(<div key={p}style={{background:C.card,borderRadius:7,padding:"8px 10px",marginBottom:5,borderLeft:`3px solid ${C.red}`}}>
-              <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4,flexWrap:"wrap"}}>
-                <span style={{fontSize:13,fontWeight:800,color:C.white,width:22}}>#{p}</span>
-                <Txt value={pd.name} onChange={v=>up("name",v)} placeholder="Problem name" w={100}/>
-                <Txt value={pd.grade} onChange={v=>up("grade",v)} placeholder="V6-8" w={48}/>
-                <Txt value={pd.angle} onChange={v=>up("angle",v)} placeholder="Angle°" w={48}/>
-              </div>
-              <div style={{fontSize:9,color:C.muted,fontWeight:700,marginBottom:3}}>DIFFICULTY</div>
-              <div style={{marginBottom:5}}><RPE value={pd.diff} onChange={v=>up("diff",v)}/></div>
-              <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:5}}>
-                <Counter value={pd.attempts} onChange={v=>up("attempts",v)} label="ATTEMPTS" color={C.red}/>
-                <Toggle value={pd.sent} onChange={v=>up("sent",v)} label="SENT"/>
-                <Timer seconds={240} label="Rest" color={C.red}/>
-              </div>
-              <Notes value={pd.notes} onChange={v=>up("notes",v)} placeholder="Beta, crux, body tension notes, what worked..." rows={3}/>
-            </div>);
-          })}
-        </Section>
-
-        <Section title="Pull (after climbing)" color={C.red}>
-          {(()=>{const wp=getWPullProg(35,weekNum);const ek="m-wpull",ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-            return <LiftRow name="Weighted Pull-ups" setsCount={wp.sets} prescribed={`${wp.sets}×${wp.reps}`} defaultLoad={`+${wp.load}`} rest={180} data={ed} update={up} color={C.red}/>;
-          })()}
-          {(()=>{const ek="m-rings",ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-            return <LiftRow name="Inverted Ring Rows" setsCount={3} prescribed="3×10, 2s pause" defaultLoad="BW" rest={120} data={ed} update={up} color={C.red}/>;
-          })()}
-        </Section>
-
-        <Section title="Core A" color={C.red}>
-          {[{name:"Pallof Press",rx:"3×10 ea side"},{name:"Hanging Leg Raises",rx:"3×8-12"}].map((ex,i)=>{
-            const ek=`m-c${i}`,ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-            return(<div key={i}style={{background:C.card,borderRadius:7,padding:"7px 9px",marginBottom:3}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}>
-                <span style={{fontSize:12,fontWeight:700,color:C.white}}>{ex.name}</span>
-                <span style={{fontSize:10,color:C.muted,fontFamily:"monospace"}}>{ex.rx}</span>
-              </div>
-              {[1,2,3].map(si=>(<div key={si}style={{display:"flex",alignItems:"center",gap:6,marginBottom:3}}>
-                <Toggle value={ed[`s${si}`]} onChange={v=>up(`s${si}`,v)} label={`S${si}`}/>
-                <div style={{flex:1}}><RPE value={ed[`rpe${si}`]} onChange={v=>up(`rpe${si}`,v)}/></div>
-                <Timer seconds={60} label="Rest" color={C.red}/>
-              </div>))}
-              <Notes value={ed.notes} onChange={v=>up("notes",v)} placeholder="Notes (band, form, etc.)" rows={2}/>
-            </div>);
-          })}
-        </Section>
-      </>)}
-
-      {/* ═══ TUESDAY: Push + Legs + Shoulders ═══ */}
-      {day==="TUE"&&(<>
-        <Section title="Push" color={C.purple}>
-          {[
-            {name:"Bench Press",rx:"WU + 3×8-10",load:"55",rest:120,warmup:true},
-            {name:"Overhead Press (DB)",rx:"WU + 3×8-10",load:"30",rest:150,warmup:true},
-            {name:"Dips",rx:"WU + 3×8-12",load:"BW",rest:120,warmup:true},
-          ].map((ex,i)=>{
-            const ek=`t-push-${i}`,ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-            return(<div key={i}>
-              {ex.warmup&&<LiftRow name={ex.name} setsCount={1} prescribed="1×8-10 (light)" defaultLoad={Math.round(Number(ex.load)*0.5)||"light"} rest={60} data={g(`${ek}-wu`)} update={(k,v)=>s(`${ek}-wu`,{...g(`${ek}-wu`),[k]:v})} color={C.purple} isWarmup={true}/>}
-              <LiftRow name={ex.name} setsCount={3} prescribed={ex.rx.replace("WU + ","")} defaultLoad={ex.load} rest={ex.rest} data={ed} update={up} color={C.purple}/>
-            </div>);
-          })}
-        </Section>
-
-        <Section title="Legs" color={C.purple}>
-          <div style={{display:"flex",gap:4,marginBottom:6}}>
-            <button onClick={()=>s("legSwap",true)} style={{flex:1,padding:"5px 0",borderRadius:5,border:`1px solid ${showLegA?C.purple:C.border}`,background:showLegA?C.purple:"transparent",color:showLegA?C.white:C.muted,fontSize:10,fontWeight:700,cursor:"pointer"}}>DL + BSS</button>
-            <button onClick={()=>s("legSwap",false)} style={{flex:1,padding:"5px 0",borderRadius:5,border:`1px solid ${!showLegA?C.purple:C.border}`,background:!showLegA?C.purple:"transparent",color:!showLegA?C.white:C.muted,fontSize:10,fontWeight:700,cursor:"pointer"}}>Squat + SLDL</button>
-            <button onClick={()=>s("legSwap",null)} style={{padding:"5px 8px",borderRadius:5,border:`1px solid ${C.border}`,background:"transparent",color:C.muted,fontSize:9,cursor:"pointer"}}>Auto</button>
-          </div>
-          {(showLegA?[
-            {name:"Deadlift",rx:"3×5",load:"135",rest:180},
-            {name:"Bulgarian Split Squat",rx:"3×8 ea",load:"BW",rest:120},
-          ]:[
-            {name:"Back Squat",rx:"3×8-10",load:"95",rest:150},
-            {name:"Straight Leg Deadlift",rx:"3×8-10",load:"95",rest:150},
-          ]).map((ex,i)=>{
-            const ek=`t-legs-${showLegA?"a":"b"}-${i}`,ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-            return <LiftRow key={`${showLegA}-${i}`} name={ex.name} setsCount={3} prescribed={ex.rx} defaultLoad={ex.load} rest={ex.rest} data={ed} update={up} color={C.purple}/>;
-          })}
-        </Section>
-
-        <Section title="Accessory + Shoulders" color={C.purple}>
-          {[
-            {name:"Hammer Curls",rx:"3×10-12",load:"20",rest:60},
-            {name:"Rotator Cuff (Seated)",rx:"3×10",load:"10",rest:60},
-            {name:"Rotator Cuff (Cable Standing)",rx:"3×10",load:"10",rest:60},
-            {name:"Superman Bar Presses",rx:"3×8",load:"bar",rest:60},
-          ].map((ex,i)=>{
-            const ek=`t-acc-${i}`,ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-            return <LiftRow key={i} name={ex.name} setsCount={3} prescribed={ex.rx} defaultLoad={ex.load} rest={ex.rest} data={ed} update={up} color={C.purple}/>;
-          })}
-        </Section>
-      </>)}
-
-      {/* ═══ THURSDAY: Block Pulls + Pull ═══ */}
-      {day==="THU"&&(<>
-        <Section title="Finger Warm-up" note="Light ascending block pulls, both hands" color={C.accent}>
-          <div style={{background:C.card,borderRadius:7,padding:"7px 9px",marginBottom:3}}>
-            <Toggle value={g("th-wu").done} onChange={v=>s("th-wu",{...g("th-wu"),done:v})} label="Warm-up complete"/>
-            <Notes value={g("th-wu").notes} onChange={v=>s("th-wu",{...g("th-wu"),notes:v})} placeholder="Warm-up notes" rows={1}/>
-          </div>
-        </Section>
-
-        {[
-          {key:"hc",name:"4-Finger Half Crimp (20mm)",base:"hc"},
-          {key:"oh",name:"Open Hand / 3-Finger Drag (20mm)",base:"oh"},
-          {key:"im",name:"IM 2-Finger Pocket",base:"im"},
-          {key:"mr",name:"MR 2-Finger Pocket",base:"mr"},
-          {key:"pinch",name:"Wide Pinch Block",base:"pinch"},
-          {key:"roller",name:"Heavy Roller (Wrist)",base:"roller"},
-        ].map(grip=>{
-          const prog=getBlockPullProg(getBase(grip.base),weekNum);
-          return(
-            <Section key={grip.key} title={grip.name} note={`Week ${weekNum}: ${prog.sets}×${prog.reps} @ ~${prog.load} lb | RPE ${prog.rpe}`} color={C.accent}>
-              <BlockPullRow name={grip.name} prog={prog} data={g(`th-${grip.key}`)} update={(k,v)=>u(`th-${grip.key}`,k,v)} color={C.accent}/>
-              <div style={{display:"flex",alignItems:"center",gap:4,marginTop:2}}>
-                <span style={{fontSize:9,color:C.muted}}>Base max:</span>
-                <Num value={gv(`base_${grip.base}`)??BASES[grip.base]} onChange={v=>s(`base_${grip.base}`,v)} placeholder={`${BASES[grip.base]}`} w={50}/>
-                <span style={{fontSize:9,color:C.muted}}>lb (adjust to recalc progression)</span>
-              </div>
-            </Section>
-          );
-        })}
-
-        <Section title="Pull (after finger work)" color={C.accent}>
-          {(()=>{const wp=getWPullProg(35,weekNum);const ek="th-wpull",ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-            return <LiftRow name="Weighted Pull-ups" setsCount={wp.sets} prescribed={`${wp.sets}×${wp.reps}`} defaultLoad={`+${wp.load}`} rest={180} data={ed} update={up} color={C.accent}/>;
-          })()}
-          {(()=>{const ek="th-rings",ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-            return <LiftRow name="Inverted Ring Rows" setsCount={3} prescribed="3×10, 2s pause" defaultLoad="BW" rest={120} data={ed} update={up} color={C.accent}/>;
-          })()}
-        </Section>
-      </>)}
-
-      {/* ═══ FRIDAY: Shoulders + Core ═══ */}
-      {day==="FRI"&&(<>
-        <Section title="Shoulder Health" color={C.teal}>
-          {[
-            {name:"Rotator Cuff (Seated)",rx:"3×10",load:"10",rest:60},
-            {name:"Rotator Cuff (Cable Standing)",rx:"3×10",load:"10",rest:60},
-            {name:"Superman Bar Presses",rx:"3×8",load:"bar",rest:60},
-            {name:"I-Y-T Raises",rx:"3×6 each",load:"7",rest:60},
-          ].map((ex,i)=>{
-            const ek=`f-sh-${i}`,ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-            return <LiftRow key={i} name={ex.name} setsCount={3} prescribed={ex.rx} defaultLoad={ex.load} rest={ex.rest} data={ed} update={up} color={C.teal}/>;
-          })}
-        </Section>
-        <Section title="Core" color={C.teal}>
-          {[{name:"Copenhagen Plank",rx:"3×15-20s ea"},{name:"Ab Wheel Rollouts",rx:"3×8-10"},{name:"Pallof Press",rx:"3×10 ea side"}].map((ex,i)=>{
-            const ek=`f-core-${i}`,ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-            return(<div key={i}style={{background:C.card,borderRadius:7,padding:"7px 9px",marginBottom:3}}>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-                <span style={{fontSize:12,fontWeight:700,color:C.white}}>{ex.name}</span>
-                <span style={{fontSize:10,color:C.muted,fontFamily:"monospace"}}>{ex.rx}</span>
-              </div>
-              {[1,2,3].map(si=>(<div key={si}style={{display:"flex",alignItems:"center",gap:4,marginBottom:2}}>
-                <Toggle value={ed[`s${si}`]} onChange={v=>up(`s${si}`,v)} label={`S${si}`}/>
-                <div style={{flex:1}}><RPE value={ed[`rpe${si}`]} onChange={v=>up(`rpe${si}`,v)}/></div>
-                <Timer seconds={60} label="Rest" color={C.teal}/>
-              </div>))}
-              <Notes value={ed.notes} onChange={v=>up("notes",v)} placeholder="Notes" rows={2}/>
-            </div>);
-          })}
-        </Section>
-      </>)}
-
-      {/* ═══ SATURDAY: Projects ═══ */}
-      {day==="SAT"&&(()=>{
-        const mode=gv("sat-mode")||"tension";
-        return(<>
-          <div style={{display:"flex",gap:3,marginBottom:8}}>
-            {[{k:"tension",l:"Tension Board"},{k:"boulder",l:"Gym Projects"},{k:"outdoor",l:"Outdoor"}].map(m=>(
-              <button key={m.k}onClick={()=>s("sat-mode",m.k)}style={{flex:1,padding:"7px 0",borderRadius:6,border:`1px solid ${mode===m.k?C.yellow:C.border}`,background:mode===m.k?C.yellow:C.card,color:mode===m.k?C.bg:C.muted,fontSize:11,fontWeight:700,cursor:"pointer"}}>{m.l}</button>
-            ))}
-          </div>
-          {(mode==="tension"||mode==="boulder")&&(
-            <Section title={mode==="tension"?"Tension Board 2 Projects":"Gym Project Boulders"} color={C.yellow}>
-              {[1,2,3,4,5,6].map(p=>{
-                const pk=`s-${mode}-${p}`,pd=g(pk),up=(k,v)=>s(pk,{...pd,[k]:v});
-                return(<div key={p}style={{background:C.card,borderRadius:7,padding:"8px 10px",marginBottom:4,borderLeft:`3px solid ${C.yellow}`}}>
-                  <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4,flexWrap:"wrap"}}>
-                    <span style={{fontSize:12,fontWeight:800,color:C.white}}>#{p}</span>
-                    <Txt value={pd.name} onChange={v=>up("name",v)} placeholder="Problem" w={100}/>
-                    <Txt value={pd.grade} onChange={v=>up("grade",v)} placeholder="V7" w={44}/>
-                    {mode==="tension"&&<Txt value={pd.angle} onChange={v=>up("angle",v)} placeholder="Angle°" w={48}/>}
-                  </div>
-                  <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:5}}>
-                    <Counter value={pd.attempts} onChange={v=>up("attempts",v)} label="ATTEMPTS" color={C.yellow}/>
-                    <Toggle value={pd.sent} onChange={v=>up("sent",v)} label="SENT"/>
-                    <Timer seconds={240} label="Rest" color={C.yellow}/>
-                  </div>
-                  <Notes value={pd.notes} onChange={v=>up("notes",v)} placeholder="Beta, crux, what worked..." rows={3}/>
-                </div>);
-              })}
-            </Section>
-          )}
-          {mode==="outdoor"&&(
-            <Section title="Outdoor Climbing" color={C.yellow}>
-              {[1,2,3,4,5,6,7,8].map(p=>{
-                const pk=`s-out-${p}`,pd=g(pk),up=(k,v)=>s(pk,{...pd,[k]:v});
-                return(<div key={p}style={{background:C.card,borderRadius:7,padding:"8px 10px",marginBottom:4,borderLeft:`3px solid ${C.yellow}`}}>
-                  <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4,flexWrap:"wrap"}}>
-                    <span style={{fontSize:12,fontWeight:700,color:C.white,width:16}}>{p}</span>
-                    <Txt value={pd.name} onChange={v=>up("name",v)} placeholder="Route" w={100}/>
-                    <Txt value={pd.grade} onChange={v=>up("grade",v)} placeholder="5.12a" w={52}/>
-                  </div>
-                  <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:5}}>
-                    <Counter value={pd.attempts} onChange={v=>up("attempts",v)} label="ATTEMPTS" color={C.yellow}/>
-                    <Toggle value={pd.sent} onChange={v=>up("sent",v)} label="SENT"/>
-                  </div>
-                  <Notes value={pd.notes} onChange={v=>up("notes",v)} placeholder="Beta, conditions, how it went..." rows={3}/>
-                </div>);
-              })}
-            </Section>
-          )}
-          {mode!=="outdoor"&&(
-            <Section title="Post-Climbing: Max BW Pull-ups" color={C.yellow}>
-              {[1,2].map(i=>{const ek=`s-post-${i}`,ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
-                return(<ExCard key={i}label={`Set ${i}`}rx="Max BW reps"timer={<Timer seconds={180}label="Rest"color={C.yellow}/>}>
-                  <Num value={ed.reps}onChange={v=>up("reps",v)}placeholder="reps"w={40}/>
-                  <RPE value={ed.rpe}onChange={v=>up("rpe",v)}/>
-                </ExCard>);
-              })}
-            </Section>
-          )}
-        </>);
-      })()}
-    </div>
-  </div>);
+  var getBase = function getBase(grip) {
+    var ov = gv("base_".concat(grip));
+    return ov != null ? Number(ov) : BASES[grip];
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.bg,
+      minHeight: "100vh",
+      color: C.text
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.card,
+      padding: "10px 10px 6px",
+      position: "sticky",
+      top: 0,
+      zIndex: 100,
+      borderBottom: "1px solid ".concat(C.border)
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return setShowWeeks(!showWeeks);
+    },
+    style: {
+      background: "none",
+      border: "none",
+      textAlign: "left",
+      cursor: "pointer",
+      padding: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 9,
+      color: C.muted,
+      fontWeight: 600,
+      letterSpacing: 1
+    }
+  }, "PHASE ", phase.id, ": ", phase.name.toUpperCase(), " \xB7 WEEK ", weekNum, deload ? " (DELOAD)" : "", " \u25BE"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 14,
+      fontWeight: 800,
+      color: C.white
+    }
+  }, displayWkLabel(weekKey))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "right"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 10,
+      fontWeight: 700,
+      color: stC[status] || C.muted
+    }
+  }, stT[status]), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return setShowMacro(!showMacro);
+    },
+    style: {
+      display: "block",
+      background: "none",
+      border: "1px solid ".concat(C.border),
+      color: C.accent,
+      borderRadius: 4,
+      padding: "2px 6px",
+      fontSize: 9,
+      cursor: "pointer",
+      marginTop: 2
+    }
+  }, "\uD83D\uDCCA Plan"))), swapped && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.orange,
+      borderRadius: 4,
+      padding: "3px 8px",
+      marginBottom: 4,
+      fontSize: 10,
+      fontWeight: 700,
+      color: C.bg,
+      textAlign: "center"
+    }
+  }, "\u21C4 Mon/Tue SWAPPED (weekend outdoor recovery)"), showWeeks && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.bg,
+      border: "1px solid ".concat(C.border),
+      borderRadius: 6,
+      padding: 6,
+      marginBottom: 6,
+      maxHeight: 200,
+      overflowY: "auto"
+    }
+  }, weekKey !== getCurWk() && /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      setWeekKey(getCurWk());
+      setShowWeeks(false);
+    },
+    style: {
+      display: "block",
+      width: "100%",
+      textAlign: "left",
+      background: C.green,
+      border: "none",
+      color: C.white,
+      padding: "6px 8px",
+      fontSize: 12,
+      fontWeight: 700,
+      cursor: "pointer",
+      borderRadius: 4,
+      marginBottom: 4
+    }
+  }, "\u2192 Current week"), listWeeks().map(function (wk) {
+    return /*#__PURE__*/React.createElement("button", {
+      key: wk,
+      onClick: function onClick() {
+        setWeekKey(wk);
+        setShowWeeks(false);
+      },
+      style: {
+        display: "block",
+        width: "100%",
+        textAlign: "left",
+        background: wk === weekKey ? C.accent : "transparent",
+        border: "none",
+        color: wk === weekKey ? C.white : C.text,
+        padding: "4px 8px",
+        fontSize: 11,
+        cursor: "pointer",
+        borderRadius: 3
+      }
+    }, displayWkLabel(wk), " ", wk === getCurWk() ? "(current)" : "");
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderTop: "1px solid ".concat(C.border),
+      marginTop: 4,
+      paddingTop: 4,
+      display: "flex",
+      gap: 4
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: exportAll,
+    style: {
+      flex: 1,
+      background: C.card,
+      border: "1px solid ".concat(C.border),
+      color: C.text,
+      padding: "4px",
+      fontSize: 10,
+      cursor: "pointer",
+      borderRadius: 3
+    }
+  }, "\uD83D\uDCE5 Export"), /*#__PURE__*/React.createElement("button", {
+    onClick: importData,
+    style: {
+      flex: 1,
+      background: C.card,
+      border: "1px solid ".concat(C.border),
+      color: C.text,
+      padding: "4px",
+      fontSize: 10,
+      cursor: "pointer",
+      borderRadius: 3
+    }
+  }, "\uD83D\uDCE4 Import"), /*#__PURE__*/React.createElement("button", {
+    onClick: doSwap,
+    style: {
+      flex: 1.5,
+      background: swapped ? C.orange : C.card,
+      border: "1px solid ".concat(swapped ? C.orange : C.border),
+      color: swapped ? C.bg : C.text,
+      padding: "4px",
+      fontSize: 10,
+      cursor: "pointer",
+      borderRadius: 3,
+      fontWeight: 700
+    }
+  }, "\u21C4 ", swapped ? "Unswap" : "Swap", " Mon/Tue"))), showMacro && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.bg,
+      border: "1px solid ".concat(C.border),
+      borderRadius: 6,
+      padding: 8,
+      marginBottom: 6,
+      maxHeight: 300,
+      overflowY: "auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      fontWeight: 800,
+      color: C.white,
+      marginBottom: 6
+    }
+  }, "MACROCYCLE"), PHASES.map(function (p) {
+    var isCur = p.id === phase.id;
+    return /*#__PURE__*/React.createElement("div", {
+      key: p.id,
+      style: {
+        background: isCur ? "".concat(C.accent, "22") : C.card,
+        border: isCur ? "1px solid ".concat(C.accent) : "1px solid ".concat(C.border),
+        borderRadius: 6,
+        padding: 8,
+        marginBottom: 4
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        marginBottom: 2
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 12,
+        fontWeight: 800,
+        color: isCur ? C.accent : C.white
+      }
+    }, "Phase ", p.id, ": ", p.name, isCur ? " ← NOW" : ""), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 10,
+        color: C.muted
+      }
+    }, "Wks ", p.weeks[0], "\u2013", p.weeks[1])), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: C.muted
+      }
+    }, p.dates), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 10,
+        color: C.text,
+        marginTop: 3
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: C.accent
+      }
+    }, "Finger:"), " ", p.finger, " \xB7 ", /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: C.green
+      }
+    }, "Pull:"), " ", p.pull, " \xB7 ", /*#__PURE__*/React.createElement("span", {
+      style: {
+        color: C.yellow
+      }
+    }, "Climbing:"), " ", p.climbing));
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      fontWeight: 700,
+      color: C.teal,
+      marginTop: 6,
+      marginBottom: 4
+    }
+  }, "PHASE ", phase.id, " WEEK PROGRESSION"), Array.from({
+    length: phase.weeks[1] - phase.weeks[0] + 1
+  }, function (_, i) {
+    return phase.weeks[0] + i;
+  }).map(function (w) {
+    var hcP = getBlockPullProg(getBase("hc"), w);
+    var isCur = w === weekNum;
+    return /*#__PURE__*/React.createElement("div", {
+      key: w,
+      style: {
+        display: "flex",
+        gap: 6,
+        padding: "3px 6px",
+        fontSize: 10,
+        color: isCur ? C.white : C.muted,
+        background: isCur ? "".concat(C.accent, "22") : "transparent",
+        borderRadius: 3
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: 50,
+        fontWeight: 700
+      }
+    }, "Wk ", w, isDeload(w) ? " (D)" : ""), /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: 50
+      }
+    }, hcP.sets, "\xD7", hcP.reps), /*#__PURE__*/React.createElement("span", {
+      style: {
+        width: 50
+      }
+    }, "~", hcP.load, "lb"), /*#__PURE__*/React.createElement("span", {
+      style: {
+        flex: 1
+      }
+    }, hcP.note));
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 2
+    }
+  }, Object.entries(DAYS_CONF).map(function (_ref10) {
+    var _ref11 = _slicedToArray(_ref10, 2),
+      k = _ref11[0],
+      d = _ref11[1];
+    var label = swapped ? k === "MON" ? "T→M" : k === "TUE" ? "M→T" : d.label : d.label;
+    return /*#__PURE__*/React.createElement("button", {
+      key: k,
+      onClick: function onClick() {
+        return setDay(k);
+      },
+      style: {
+        flex: 1,
+        padding: "5px 0",
+        borderRadius: 5,
+        border: "none",
+        cursor: "pointer",
+        background: k === day ? d.color : "transparent",
+        color: k === day ? C.white : C.muted,
+        fontSize: 11,
+        fontWeight: 800
+      }
+    }, label);
+  }))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: "8px 8px 80px"
+    }
+  }, DAYS_CONF[day] && day !== "WED" && day !== "SUN" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: DAYS_CONF[day].color,
+      borderRadius: 8,
+      padding: "8px 12px",
+      marginBottom: 8,
+      opacity: 0.9
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 16,
+      fontWeight: 800,
+      color: C.white
+    }
+  }, DAYS_CONF[day].title), deload && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: "rgba(255,255,255,0.7)",
+      fontWeight: 700
+    }
+  }, "DELOAD WEEK \u2014 reduce volume")), (day === "WED" || day === "SUN") && /*#__PURE__*/React.createElement(Section, {
+    title: "Rest Day",
+    color: C.muted
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.card,
+      borderRadius: 8,
+      padding: 14,
+      fontSize: 13,
+      lineHeight: 1.6
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    style: {
+      marginTop: 0
+    }
+  }, "Recovery day. Optional: easy walk, mobility routine, massage gun work."), /*#__PURE__*/React.createElement(Notes, {
+    value: gv("".concat(day.toLowerCase(), "-notes")),
+    onChange: function onChange(v) {
+      return s("".concat(day.toLowerCase(), "-notes"), v);
+    },
+    placeholder: "Recovery notes, how you're feeling...",
+    rows: 4
+  }))), day === "MON" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
+    title: "Limit Bouldering \u2014 Tension Board 2",
+    note: "30-40\xB0 | V6-V8 | 3-5 min rest | 6 problems",
+    color: C.red
+  }, [1, 2, 3, 4, 5, 6].map(function (p) {
+    var pk = "m-p".concat(p),
+      pd = g(pk),
+      up = function up(k, v) {
+        return s(pk, _objectSpread(_objectSpread({}, pd), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement("div", {
+      key: p,
+      style: {
+        background: C.card,
+        borderRadius: 7,
+        padding: "8px 10px",
+        marginBottom: 5,
+        borderLeft: "3px solid ".concat(C.red)
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 6,
+        alignItems: "center",
+        marginBottom: 4,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 13,
+        fontWeight: 800,
+        color: C.white,
+        width: 22
+      }
+    }, "#", p), /*#__PURE__*/React.createElement(Txt, {
+      value: pd.name,
+      onChange: function onChange(v) {
+        return up("name", v);
+      },
+      placeholder: "Problem name",
+      w: 100
+    }), /*#__PURE__*/React.createElement(Txt, {
+      value: pd.grade,
+      onChange: function onChange(v) {
+        return up("grade", v);
+      },
+      placeholder: "V6-8",
+      w: 48
+    }), /*#__PURE__*/React.createElement(Txt, {
+      value: pd.angle,
+      onChange: function onChange(v) {
+        return up("angle", v);
+      },
+      placeholder: "Angle\xB0",
+      w: 48
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 9,
+        color: C.muted,
+        fontWeight: 700,
+        marginBottom: 3
+      }
+    }, "DIFFICULTY"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginBottom: 5
+      }
+    }, /*#__PURE__*/React.createElement(RPE, {
+      value: pd.diff,
+      onChange: function onChange(v) {
+        return up("diff", v);
+      }
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 10,
+        alignItems: "center",
+        marginBottom: 5
+      }
+    }, /*#__PURE__*/React.createElement(Counter, {
+      value: pd.attempts,
+      onChange: function onChange(v) {
+        return up("attempts", v);
+      },
+      label: "ATTEMPTS",
+      color: C.red
+    }), /*#__PURE__*/React.createElement(Toggle, {
+      value: pd.sent,
+      onChange: function onChange(v) {
+        return up("sent", v);
+      },
+      label: "SENT"
+    }), /*#__PURE__*/React.createElement(Timer, {
+      seconds: 240,
+      label: "Rest",
+      color: C.red
+    })), /*#__PURE__*/React.createElement(Notes, {
+      value: pd.notes,
+      onChange: function onChange(v) {
+        return up("notes", v);
+      },
+      placeholder: "Beta, crux, body tension notes, what worked...",
+      rows: 3
+    }));
+  })), /*#__PURE__*/React.createElement(Section, {
+    title: "Pull (after climbing)",
+    color: C.red
+  }, function () {
+    var wp = getWPullProg(35, weekNum);
+    var ek = "m-wpull",
+      ed = g(ek),
+      up = function up(k, v) {
+        return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement(LiftRow, {
+      name: "Weighted Pull-ups",
+      setsCount: wp.sets,
+      prescribed: "".concat(wp.sets, "\xD7").concat(wp.reps),
+      defaultLoad: "+".concat(wp.load),
+      rest: 180,
+      data: ed,
+      update: up,
+      color: C.red
+    });
+  }(), function () {
+    var ek = "m-rings",
+      ed = g(ek),
+      up = function up(k, v) {
+        return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement(LiftRow, {
+      name: "Inverted Ring Rows",
+      setsCount: 3,
+      prescribed: "3\xD710, 2s pause",
+      defaultLoad: "BW",
+      rest: 120,
+      data: ed,
+      update: up,
+      color: C.red
+    });
+  }()), /*#__PURE__*/React.createElement(Section, {
+    title: "Core A",
+    color: C.red
+  }, [{
+    name: "Pallof Press",
+    rx: "3×10 ea side"
+  }, {
+    name: "Hanging Leg Raises",
+    rx: "3×8-12"
+  }].map(function (ex, i) {
+    var ek = "m-c".concat(i),
+      ed = g(ek),
+      up = function up(k, v) {
+        return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        background: C.card,
+        borderRadius: 7,
+        padding: "7px 9px",
+        marginBottom: 3
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        marginBottom: 4
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 12,
+        fontWeight: 700,
+        color: C.white
+      }
+    }, ex.name), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 10,
+        color: C.muted,
+        fontFamily: "monospace"
+      }
+    }, ex.rx)), [1, 2, 3].map(function (si) {
+      return /*#__PURE__*/React.createElement("div", {
+        key: si,
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          marginBottom: 3
+        }
+      }, /*#__PURE__*/React.createElement(Toggle, {
+        value: ed["s".concat(si)],
+        onChange: function onChange(v) {
+          return up("s".concat(si), v);
+        },
+        label: "S".concat(si)
+      }), /*#__PURE__*/React.createElement("div", {
+        style: {
+          flex: 1
+        }
+      }, /*#__PURE__*/React.createElement(RPE, {
+        value: ed["rpe".concat(si)],
+        onChange: function onChange(v) {
+          return up("rpe".concat(si), v);
+        }
+      })), /*#__PURE__*/React.createElement(Timer, {
+        seconds: 60,
+        label: "Rest",
+        color: C.red
+      }));
+    }), /*#__PURE__*/React.createElement(Notes, {
+      value: ed.notes,
+      onChange: function onChange(v) {
+        return up("notes", v);
+      },
+      placeholder: "Notes (band, form, etc.)",
+      rows: 2
+    }));
+  }))), day === "TUE" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
+    title: "Push",
+    color: C.purple
+  }, [{
+    name: "Bench Press",
+    rx: "WU + 3×8-10",
+    load: "55",
+    rest: 120,
+    warmup: true
+  }, {
+    name: "Overhead Press (DB)",
+    rx: "WU + 3×8-10",
+    load: "30",
+    rest: 150,
+    warmup: true
+  }, {
+    name: "Dips",
+    rx: "WU + 3×8-12",
+    load: "BW",
+    rest: 120,
+    warmup: true
+  }].map(function (ex, i) {
+    var ek = "t-push-".concat(i),
+      ed = g(ek),
+      up = function up(k, v) {
+        return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement("div", {
+      key: i
+    }, ex.warmup && /*#__PURE__*/React.createElement(LiftRow, {
+      name: ex.name,
+      setsCount: 1,
+      prescribed: "1\xD78-10 (light)",
+      defaultLoad: Math.round(Number(ex.load) * 0.5) || "light",
+      rest: 60,
+      data: g("".concat(ek, "-wu")),
+      update: function update(k, v) {
+        return s("".concat(ek, "-wu"), _objectSpread(_objectSpread({}, g("".concat(ek, "-wu"))), {}, _defineProperty({}, k, v)));
+      },
+      color: C.purple,
+      isWarmup: true
+    }), /*#__PURE__*/React.createElement(LiftRow, {
+      name: ex.name,
+      setsCount: 3,
+      prescribed: ex.rx.replace("WU + ", ""),
+      defaultLoad: ex.load,
+      rest: ex.rest,
+      data: ed,
+      update: up,
+      color: C.purple
+    }));
+  })), /*#__PURE__*/React.createElement(Section, {
+    title: "Legs",
+    color: C.purple
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 4,
+      marginBottom: 6
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return s("legSwap", true);
+    },
+    style: {
+      flex: 1,
+      padding: "5px 0",
+      borderRadius: 5,
+      border: "1px solid ".concat(showLegA ? C.purple : C.border),
+      background: showLegA ? C.purple : "transparent",
+      color: showLegA ? C.white : C.muted,
+      fontSize: 10,
+      fontWeight: 700,
+      cursor: "pointer"
+    }
+  }, "DL + BSS"), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return s("legSwap", false);
+    },
+    style: {
+      flex: 1,
+      padding: "5px 0",
+      borderRadius: 5,
+      border: "1px solid ".concat(!showLegA ? C.purple : C.border),
+      background: !showLegA ? C.purple : "transparent",
+      color: !showLegA ? C.white : C.muted,
+      fontSize: 10,
+      fontWeight: 700,
+      cursor: "pointer"
+    }
+  }, "Squat + SLDL"), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return s("legSwap", null);
+    },
+    style: {
+      padding: "5px 8px",
+      borderRadius: 5,
+      border: "1px solid ".concat(C.border),
+      background: "transparent",
+      color: C.muted,
+      fontSize: 9,
+      cursor: "pointer"
+    }
+  }, "Auto")), (showLegA ? [{
+    name: "Deadlift",
+    rx: "3×5",
+    load: "135",
+    rest: 180
+  }, {
+    name: "Bulgarian Split Squat",
+    rx: "3×8 ea",
+    load: "BW",
+    rest: 120
+  }] : [{
+    name: "Back Squat",
+    rx: "3×8-10",
+    load: "95",
+    rest: 150
+  }, {
+    name: "Straight Leg Deadlift",
+    rx: "3×8-10",
+    load: "95",
+    rest: 150
+  }]).map(function (ex, i) {
+    var ek = "t-legs-".concat(showLegA ? "a" : "b", "-").concat(i),
+      ed = g(ek),
+      up = function up(k, v) {
+        return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement(LiftRow, {
+      key: "".concat(showLegA, "-").concat(i),
+      name: ex.name,
+      setsCount: 3,
+      prescribed: ex.rx,
+      defaultLoad: ex.load,
+      rest: ex.rest,
+      data: ed,
+      update: up,
+      color: C.purple
+    });
+  })), /*#__PURE__*/React.createElement(Section, {
+    title: "Accessory + Shoulders",
+    color: C.purple
+  }, [{
+    name: "Hammer Curls",
+    rx: "3×10-12",
+    load: "20",
+    rest: 60
+  }, {
+    name: "Rotator Cuff (Seated)",
+    rx: "3×10",
+    load: "10",
+    rest: 60
+  }, {
+    name: "Rotator Cuff (Cable Standing)",
+    rx: "3×10",
+    load: "10",
+    rest: 60
+  }, {
+    name: "Superman Bar Presses",
+    rx: "3×8",
+    load: "bar",
+    rest: 60
+  }].map(function (ex, i) {
+    var ek = "t-acc-".concat(i),
+      ed = g(ek),
+      up = function up(k, v) {
+        return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement(LiftRow, {
+      key: i,
+      name: ex.name,
+      setsCount: 3,
+      prescribed: ex.rx,
+      defaultLoad: ex.load,
+      rest: ex.rest,
+      data: ed,
+      update: up,
+      color: C.purple
+    });
+  }))), day === "THU" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
+    title: "Finger Warm-up",
+    note: "Light ascending block pulls, both hands",
+    color: C.accent
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: C.card,
+      borderRadius: 7,
+      padding: "7px 9px",
+      marginBottom: 3
+    }
+  }, /*#__PURE__*/React.createElement(Toggle, {
+    value: g("th-wu").done,
+    onChange: function onChange(v) {
+      return s("th-wu", _objectSpread(_objectSpread({}, g("th-wu")), {}, {
+        done: v
+      }));
+    },
+    label: "Warm-up complete"
+  }), /*#__PURE__*/React.createElement(Notes, {
+    value: g("th-wu").notes,
+    onChange: function onChange(v) {
+      return s("th-wu", _objectSpread(_objectSpread({}, g("th-wu")), {}, {
+        notes: v
+      }));
+    },
+    placeholder: "Warm-up notes",
+    rows: 1
+  }))), [{
+    key: "hc",
+    name: "4-Finger Half Crimp (20mm)",
+    base: "hc"
+  }, {
+    key: "oh",
+    name: "Open Hand / 3-Finger Drag (20mm)",
+    base: "oh"
+  }, {
+    key: "im",
+    name: "IM 2-Finger Pocket",
+    base: "im"
+  }, {
+    key: "mr",
+    name: "MR 2-Finger Pocket",
+    base: "mr"
+  }, {
+    key: "pinch",
+    name: "Wide Pinch Block",
+    base: "pinch"
+  }, {
+    key: "roller",
+    name: "Heavy Roller (Wrist)",
+    base: "roller"
+  }].map(function (grip) {
+    var _gv;
+    var prog = getBlockPullProg(getBase(grip.base), weekNum);
+    return /*#__PURE__*/React.createElement(Section, {
+      key: grip.key,
+      title: grip.name,
+      note: "Week ".concat(weekNum, ": ").concat(prog.sets, "\xD7").concat(prog.reps, " @ ~").concat(prog.load, " lb | RPE ").concat(prog.rpe),
+      color: C.accent
+    }, /*#__PURE__*/React.createElement(BlockPullRow, {
+      name: grip.name,
+      prog: prog,
+      data: g("th-".concat(grip.key)),
+      update: function update(k, v) {
+        return u("th-".concat(grip.key), k, v);
+      },
+      color: C.accent
+    }), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 4,
+        marginTop: 2
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9,
+        color: C.muted
+      }
+    }, "Base max:"), /*#__PURE__*/React.createElement(Num, {
+      value: (_gv = gv("base_".concat(grip.base))) !== null && _gv !== void 0 ? _gv : BASES[grip.base],
+      onChange: function onChange(v) {
+        return s("base_".concat(grip.base), v);
+      },
+      placeholder: "".concat(BASES[grip.base]),
+      w: 50
+    }), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 9,
+        color: C.muted
+      }
+    }, "lb (adjust to recalc progression)")));
+  }), /*#__PURE__*/React.createElement(Section, {
+    title: "Pull (after finger work)",
+    color: C.accent
+  }, function () {
+    var wp = getWPullProg(35, weekNum);
+    var ek = "th-wpull",
+      ed = g(ek),
+      up = function up(k, v) {
+        return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement(LiftRow, {
+      name: "Weighted Pull-ups",
+      setsCount: wp.sets,
+      prescribed: "".concat(wp.sets, "\xD7").concat(wp.reps),
+      defaultLoad: "+".concat(wp.load),
+      rest: 180,
+      data: ed,
+      update: up,
+      color: C.accent
+    });
+  }(), function () {
+    var ek = "th-rings",
+      ed = g(ek),
+      up = function up(k, v) {
+        return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement(LiftRow, {
+      name: "Inverted Ring Rows",
+      setsCount: 3,
+      prescribed: "3\xD710, 2s pause",
+      defaultLoad: "BW",
+      rest: 120,
+      data: ed,
+      update: up,
+      color: C.accent
+    });
+  }())), day === "FRI" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
+    title: "Shoulder Health",
+    color: C.teal
+  }, [{
+    name: "Rotator Cuff (Seated)",
+    rx: "3×10",
+    load: "10",
+    rest: 60
+  }, {
+    name: "Rotator Cuff (Cable Standing)",
+    rx: "3×10",
+    load: "10",
+    rest: 60
+  }, {
+    name: "Superman Bar Presses",
+    rx: "3×8",
+    load: "bar",
+    rest: 60
+  }, {
+    name: "I-Y-T Raises",
+    rx: "3×6 each",
+    load: "7",
+    rest: 60
+  }].map(function (ex, i) {
+    var ek = "f-sh-".concat(i),
+      ed = g(ek),
+      up = function up(k, v) {
+        return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement(LiftRow, {
+      key: i,
+      name: ex.name,
+      setsCount: 3,
+      prescribed: ex.rx,
+      defaultLoad: ex.load,
+      rest: ex.rest,
+      data: ed,
+      update: up,
+      color: C.teal
+    });
+  })), /*#__PURE__*/React.createElement(Section, {
+    title: "Core",
+    color: C.teal
+  }, [{
+    name: "Copenhagen Plank",
+    rx: "3×15-20s ea"
+  }, {
+    name: "Ab Wheel Rollouts",
+    rx: "3×8-10"
+  }, {
+    name: "Pallof Press",
+    rx: "3×10 ea side"
+  }].map(function (ex, i) {
+    var ek = "f-core-".concat(i),
+      ed = g(ek),
+      up = function up(k, v) {
+        return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+      };
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: {
+        background: C.card,
+        borderRadius: 7,
+        padding: "7px 9px",
+        marginBottom: 3
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        marginBottom: 3
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 12,
+        fontWeight: 700,
+        color: C.white
+      }
+    }, ex.name), /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 10,
+        color: C.muted,
+        fontFamily: "monospace"
+      }
+    }, ex.rx)), [1, 2, 3].map(function (si) {
+      return /*#__PURE__*/React.createElement("div", {
+        key: si,
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
+          marginBottom: 2
+        }
+      }, /*#__PURE__*/React.createElement(Toggle, {
+        value: ed["s".concat(si)],
+        onChange: function onChange(v) {
+          return up("s".concat(si), v);
+        },
+        label: "S".concat(si)
+      }), /*#__PURE__*/React.createElement("div", {
+        style: {
+          flex: 1
+        }
+      }, /*#__PURE__*/React.createElement(RPE, {
+        value: ed["rpe".concat(si)],
+        onChange: function onChange(v) {
+          return up("rpe".concat(si), v);
+        }
+      })), /*#__PURE__*/React.createElement(Timer, {
+        seconds: 60,
+        label: "Rest",
+        color: C.teal
+      }));
+    }), /*#__PURE__*/React.createElement(Notes, {
+      value: ed.notes,
+      onChange: function onChange(v) {
+        return up("notes", v);
+      },
+      placeholder: "Notes",
+      rows: 2
+    }));
+  }))), day === "SAT" && function () {
+    var mode = gv("sat-mode") || "tension";
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 3,
+        marginBottom: 8
+      }
+    }, [{
+      k: "tension",
+      l: "Tension Board"
+    }, {
+      k: "boulder",
+      l: "Gym Projects"
+    }, {
+      k: "outdoor",
+      l: "Outdoor"
+    }].map(function (m) {
+      return /*#__PURE__*/React.createElement("button", {
+        key: m.k,
+        onClick: function onClick() {
+          return s("sat-mode", m.k);
+        },
+        style: {
+          flex: 1,
+          padding: "7px 0",
+          borderRadius: 6,
+          border: "1px solid ".concat(mode === m.k ? C.yellow : C.border),
+          background: mode === m.k ? C.yellow : C.card,
+          color: mode === m.k ? C.bg : C.muted,
+          fontSize: 11,
+          fontWeight: 700,
+          cursor: "pointer"
+        }
+      }, m.l);
+    })), (mode === "tension" || mode === "boulder") && /*#__PURE__*/React.createElement(Section, {
+      title: mode === "tension" ? "Tension Board 2 Projects" : "Gym Project Boulders",
+      color: C.yellow
+    }, [1, 2, 3, 4, 5, 6].map(function (p) {
+      var pk = "s-".concat(mode, "-").concat(p),
+        pd = g(pk),
+        up = function up(k, v) {
+          return s(pk, _objectSpread(_objectSpread({}, pd), {}, _defineProperty({}, k, v)));
+        };
+      return /*#__PURE__*/React.createElement("div", {
+        key: p,
+        style: {
+          background: C.card,
+          borderRadius: 7,
+          padding: "8px 10px",
+          marginBottom: 4,
+          borderLeft: "3px solid ".concat(C.yellow)
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          gap: 6,
+          alignItems: "center",
+          marginBottom: 4,
+          flexWrap: "wrap"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 12,
+          fontWeight: 800,
+          color: C.white
+        }
+      }, "#", p), /*#__PURE__*/React.createElement(Txt, {
+        value: pd.name,
+        onChange: function onChange(v) {
+          return up("name", v);
+        },
+        placeholder: "Problem",
+        w: 100
+      }), /*#__PURE__*/React.createElement(Txt, {
+        value: pd.grade,
+        onChange: function onChange(v) {
+          return up("grade", v);
+        },
+        placeholder: "V7",
+        w: 44
+      }), mode === "tension" && /*#__PURE__*/React.createElement(Txt, {
+        value: pd.angle,
+        onChange: function onChange(v) {
+          return up("angle", v);
+        },
+        placeholder: "Angle\xB0",
+        w: 48
+      })), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          marginBottom: 5
+        }
+      }, /*#__PURE__*/React.createElement(Counter, {
+        value: pd.attempts,
+        onChange: function onChange(v) {
+          return up("attempts", v);
+        },
+        label: "ATTEMPTS",
+        color: C.yellow
+      }), /*#__PURE__*/React.createElement(Toggle, {
+        value: pd.sent,
+        onChange: function onChange(v) {
+          return up("sent", v);
+        },
+        label: "SENT"
+      }), /*#__PURE__*/React.createElement(Timer, {
+        seconds: 240,
+        label: "Rest",
+        color: C.yellow
+      })), /*#__PURE__*/React.createElement(Notes, {
+        value: pd.notes,
+        onChange: function onChange(v) {
+          return up("notes", v);
+        },
+        placeholder: "Beta, crux, what worked...",
+        rows: 3
+      }));
+    })), mode === "outdoor" && /*#__PURE__*/React.createElement(Section, {
+      title: "Outdoor Climbing",
+      color: C.yellow
+    }, [1, 2, 3, 4, 5, 6, 7, 8].map(function (p) {
+      var pk = "s-out-".concat(p),
+        pd = g(pk),
+        up = function up(k, v) {
+          return s(pk, _objectSpread(_objectSpread({}, pd), {}, _defineProperty({}, k, v)));
+        };
+      return /*#__PURE__*/React.createElement("div", {
+        key: p,
+        style: {
+          background: C.card,
+          borderRadius: 7,
+          padding: "8px 10px",
+          marginBottom: 4,
+          borderLeft: "3px solid ".concat(C.yellow)
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          gap: 6,
+          alignItems: "center",
+          marginBottom: 4,
+          flexWrap: "wrap"
+        }
+      }, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 12,
+          fontWeight: 700,
+          color: C.white,
+          width: 16
+        }
+      }, p), /*#__PURE__*/React.createElement(Txt, {
+        value: pd.name,
+        onChange: function onChange(v) {
+          return up("name", v);
+        },
+        placeholder: "Route",
+        w: 100
+      }), /*#__PURE__*/React.createElement(Txt, {
+        value: pd.grade,
+        onChange: function onChange(v) {
+          return up("grade", v);
+        },
+        placeholder: "5.12a",
+        w: 52
+      })), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          marginBottom: 5
+        }
+      }, /*#__PURE__*/React.createElement(Counter, {
+        value: pd.attempts,
+        onChange: function onChange(v) {
+          return up("attempts", v);
+        },
+        label: "ATTEMPTS",
+        color: C.yellow
+      }), /*#__PURE__*/React.createElement(Toggle, {
+        value: pd.sent,
+        onChange: function onChange(v) {
+          return up("sent", v);
+        },
+        label: "SENT"
+      })), /*#__PURE__*/React.createElement(Notes, {
+        value: pd.notes,
+        onChange: function onChange(v) {
+          return up("notes", v);
+        },
+        placeholder: "Beta, conditions, how it went...",
+        rows: 3
+      }));
+    })), mode !== "outdoor" && /*#__PURE__*/React.createElement(Section, {
+      title: "Post-Climbing: Max BW Pull-ups",
+      color: C.yellow
+    }, [1, 2].map(function (i) {
+      var ek = "s-post-".concat(i),
+        ed = g(ek),
+        up = function up(k, v) {
+          return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
+        };
+      return /*#__PURE__*/React.createElement(ExCard, {
+        key: i,
+        label: "Set ".concat(i),
+        rx: "Max BW reps",
+        timer: /*#__PURE__*/React.createElement(Timer, {
+          seconds: 180,
+          label: "Rest",
+          color: C.yellow
+        })
+      }, /*#__PURE__*/React.createElement(Num, {
+        value: ed.reps,
+        onChange: function onChange(v) {
+          return up("reps", v);
+        },
+        placeholder: "reps",
+        w: 40
+      }), /*#__PURE__*/React.createElement(RPE, {
+        value: ed.rpe,
+        onChange: function onChange(v) {
+          return up("rpe", v);
+        }
+      }));
+    })));
+  }()));
 }
-
-ReactDOM.render(<App/>,document.getElementById("root"));
-</script>
-<script>if("serviceWorker"in navigator)window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(function(){});});</script>
+ReactDOM.render(/*#__PURE__*/React.createElement(App, null), document.getElementById("root"));</script>
+<script>if("serviceWorker"in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});</script>
 </body>
 </html>
