@@ -124,7 +124,7 @@ function isDeload(wk) {
 }
 
 /* Block pull progression tables (Phase 1, per hand) */
-function getBlockPullProg(baseLoad, weekNum) {
+function getBlockPullProg(baseLoad, viewWeekNum) {
   var w = Math.min(weekNum, 5);
   var progs = [{
     wk: 1,
@@ -167,7 +167,7 @@ function getBlockPullProg(baseLoad, weekNum) {
     load: Math.round(baseLoad * p.pct / 2.5) * 2.5
   });
 }
-function getWPullProg(baseLoad, weekNum) {
+function getWPullProg(baseLoad, viewWeekNum) {
   var w = Math.min(weekNum, 5);
   var progs = [{
     wk: 1,
@@ -969,8 +969,8 @@ function App() {
     var diff = Math.floor((wkDate - PHASE1_START) / (7 * 86400000));
     return Math.max(1, diff + 1);
   }, [weekKey]);
-  var phase = getPhase(weekNum);
-  var deload = isDeload(weekNum);
+  var phase = getPhase(viewWeekNum);
+  var deload = isDeload(viewWeekNum);
   useEffect(function () {
     var d = load(weekKey);
     setData(d);
@@ -1025,9 +1025,11 @@ function App() {
     return dayCode;
   };
   var actualDay = getActualDay(day);
+  // contentDay determines which workout content to show (respects swap)
+  var contentDay = actualDay;
 
   // Leg alternation for Tuesday
-  var legWeekA = weekNum % 2 === 1; // odd weeks = DL+BSS, even = Squat+SLDL
+  var legWeekA = viewWeekNum % 2 === 1; // odd weeks = DL+BSS, even = Squat+SLDL
   var manualLegSwap = gv("legSwap");
   var showLegA = manualLegSwap != null ? manualLegSwap : legWeekA;
   var exportAll = function exportAll() {
@@ -1079,6 +1081,23 @@ function App() {
     error: "Failed!",
     idle: ""
   };
+
+  // Week navigation
+  var goWeek = function goWeek(direction) {
+    var cur = new Date(weekKey + "T00:00:00");
+    cur.setDate(cur.getDate() + direction * 7);
+    setWeekKey(fmtWk(cur));
+  };
+  var getWeekNumFor = function getWeekNumFor(wk) {
+    var wkDate = new Date(wk + "T00:00:00");
+    var diff = Math.floor((wkDate - PHASE1_START) / (7 * 86400000));
+    return Math.max(1, diff + 1);
+  };
+  var viewWeekNum = getWeekNumFor(weekKey);
+  var viewPhase = getPhase(viewWeekNum);
+  var viewDeload = isDeload(viewWeekNum);
+  var isFuture = weekKey > getCurWk();
+  var isPast = weekKey < getCurWk();
 
   // Block pull base loads
   var BASES = {
@@ -1134,15 +1153,65 @@ function App() {
       fontWeight: 600,
       letterSpacing: 1
     }
-  }, "PHASE ", phase.id, ": ", phase.name.toUpperCase(), " \xB7 WEEK ", weekNum, deload ? " (DELOAD)" : "", " \u25BE"), /*#__PURE__*/React.createElement("div", {
+  }, "PHASE ", viewPhase.id, ": ", viewPhase.name.toUpperCase(), " \xB7 WEEK ", viewWeekNum, viewDeload ? " (DELOAD)" : "", " \u25BE"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 14,
       fontWeight: 800,
-      color: C.white
+      color: isFuture ? C.orange : isPast ? C.muted : C.white
     }
-  }, displayWkLabel(weekKey))), /*#__PURE__*/React.createElement("div", {
+  }, isFuture ? "📅 " : "", displayWkLabel(weekKey), isPast ? " (past)" : "")), /*#__PURE__*/React.createElement("div", {
     style: {
-      textAlign: "right"
+      display: "flex",
+      gap: 4,
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return goWeek(-1);
+    },
+    style: {
+      background: C.card,
+      border: "1px solid " + C.border,
+      color: C.white,
+      borderRadius: 6,
+      padding: "4px 8px",
+      fontSize: 14,
+      cursor: "pointer"
+    }
+  }, "\u25C0"), weekKey !== getCurWk() && /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return setWeekKey(getCurWk());
+    },
+    style: {
+      background: C.green,
+      border: "none",
+      color: C.white,
+      borderRadius: 6,
+      padding: "4px 8px",
+      fontSize: 10,
+      fontWeight: 700,
+      cursor: "pointer"
+    }
+  }, "Today"), /*#__PURE__*/React.createElement("button", {
+    onClick: function onClick() {
+      return goWeek(1);
+    },
+    style: {
+      background: C.card,
+      border: "1px solid " + C.border,
+      color: C.white,
+      borderRadius: 6,
+      padding: "4px 8px",
+      fontSize: 14,
+      cursor: "pointer"
+    }
+  }, "\u25B6"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 4,
+      marginTop: 4
     }
   }, /*#__PURE__*/React.createElement("span", {
     style: {
@@ -1155,17 +1224,15 @@ function App() {
       return setShowMacro(!showMacro);
     },
     style: {
-      display: "block",
       background: "none",
-      border: "1px solid ".concat(C.border),
+      border: "1px solid " + C.border,
       color: C.accent,
       borderRadius: 4,
       padding: "2px 6px",
       fontSize: 9,
-      cursor: "pointer",
-      marginTop: 2
+      cursor: "pointer"
     }
-  }, "\uD83D\uDCCA Plan"))), swapped && /*#__PURE__*/React.createElement("div", {
+  }, "\uD83D\uDCCA Plan")), swapped && /*#__PURE__*/React.createElement("div", {
     style: {
       background: C.orange,
       borderRadius: 4,
@@ -1288,7 +1355,7 @@ function App() {
       marginBottom: 6
     }
   }, "MACROCYCLE"), PHASES.map(function (p) {
-    var isCur = p.id === phase.id;
+    var isCur = p.id === viewPhase.id;
     return /*#__PURE__*/React.createElement("div", {
       key: p.id,
       style: {
@@ -1347,13 +1414,13 @@ function App() {
       marginTop: 6,
       marginBottom: 4
     }
-  }, "PHASE ", phase.id, " WEEK PROGRESSION"), Array.from({
-    length: phase.weeks[1] - phase.weeks[0] + 1
+  }, "PHASE ", viewPhase.id, " WEEK PROGRESSION"), Array.from({
+    length: viewPhase.weeks[1] - viewPhase.weeks[0] + 1
   }, function (_, i) {
-    return phase.weeks[0] + i;
+    return viewPhase.weeks[0] + i;
   }).map(function (w) {
     var hcP = getBlockPullProg(getBase("hc"), w);
-    var isCur = w === weekNum;
+    var isCur = w === viewWeekNum;
     return /*#__PURE__*/React.createElement("div", {
       key: w,
       style: {
@@ -1414,9 +1481,9 @@ function App() {
     style: {
       padding: "8px 8px 80px"
     }
-  }, DAYS_CONF[day] && day !== "WED" && day !== "SUN" && /*#__PURE__*/React.createElement("div", {
+  }, DAYS_CONF[contentDay] && contentDay !== "WED" && contentDay !== "SUN" && /*#__PURE__*/React.createElement("div", {
     style: {
-      background: DAYS_CONF[day].color,
+      background: DAYS_CONF[contentDay].color,
       borderRadius: 8,
       padding: "8px 12px",
       marginBottom: 8,
@@ -1428,13 +1495,13 @@ function App() {
       fontWeight: 800,
       color: C.white
     }
-  }, DAYS_CONF[day].title), deload && /*#__PURE__*/React.createElement("div", {
+  }, DAYS_CONF[contentDay].title), viewDeload && /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
       color: "rgba(255,255,255,0.7)",
       fontWeight: 700
     }
-  }, "DELOAD WEEK \u2014 reduce volume")), (day === "WED" || day === "SUN") && /*#__PURE__*/React.createElement(Section, {
+  }, "DELOAD WEEK \u2014 reduce volume")), (contentDay === "WED" || contentDay === "SUN") && /*#__PURE__*/React.createElement(Section, {
     title: "Rest Day",
     color: C.muted
   }, /*#__PURE__*/React.createElement("div", {
@@ -1456,7 +1523,7 @@ function App() {
     },
     placeholder: "Recovery notes, how you're feeling...",
     rows: 4
-  }))), day === "MON" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
+  }))), contentDay === "MON" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
     title: "Limit Bouldering \u2014 Tension Board 2",
     note: "30-40\xB0 | V6-V8 | 3-5 min rest | 6 problems",
     color: C.red
@@ -1563,7 +1630,7 @@ function App() {
     title: "Pull (after climbing)",
     color: C.red
   }, function () {
-    var wp = getWPullProg(35, weekNum);
+    var wp = getWPullProg(35, viewWeekNum);
     var ek = "m-wpull",
       ed = g(ek),
       up = function up(k, v) {
@@ -1673,7 +1740,7 @@ function App() {
       placeholder: "Notes (band, form, etc.)",
       rows: 2
     }));
-  }))), day === "TUE" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
+  }))), contentDay === "TUE" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
     title: "Push",
     color: C.purple
   }, [{
@@ -1853,7 +1920,7 @@ function App() {
       update: up,
       color: C.purple
     });
-  }))), day === "THU" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
+  }))), contentDay === "THU" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
     title: "Finger Warm-up",
     note: "Light ascending block pulls, both hands",
     color: C.accent
@@ -1907,11 +1974,11 @@ function App() {
     base: "roller"
   }].map(function (grip) {
     var _gv;
-    var prog = getBlockPullProg(getBase(grip.base), weekNum);
+    var prog = getBlockPullProg(getBase(grip.base), viewWeekNum);
     return /*#__PURE__*/React.createElement(Section, {
       key: grip.key,
       title: grip.name,
-      note: "Week ".concat(weekNum, ": ").concat(prog.sets, "\xD7").concat(prog.reps, " @ ~").concat(prog.load, " lb | RPE ").concat(prog.rpe),
+      note: "Week ".concat(viewWeekNum, ": ").concat(prog.sets, "\xD7").concat(prog.reps, " @ ~").concat(prog.load, " lb | RPE ").concat(prog.rpe),
       color: C.accent
     }, /*#__PURE__*/React.createElement(BlockPullRow, {
       name: grip.name,
@@ -1950,7 +2017,7 @@ function App() {
     title: "Pull (after finger work)",
     color: C.accent
   }, function () {
-    var wp = getWPullProg(35, weekNum);
+    var wp = getWPullProg(35, viewWeekNum);
     var ek = "th-wpull",
       ed = g(ek),
       up = function up(k, v) {
@@ -1982,7 +2049,7 @@ function App() {
       update: up,
       color: C.accent
     });
-  }())), day === "FRI" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
+  }())), contentDay === "FRI" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Section, {
     title: "Shoulder Health",
     color: C.teal
   }, [{
@@ -2103,9 +2170,9 @@ function App() {
       placeholder: "Notes",
       rows: 2
     }));
-  }))), day === "SAT" && function () {
+  }))), contentDay === "SAT" && function () {
     var mode = gv("sat-mode") || "tension";
-    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    return React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
         gap: 3,
@@ -2142,7 +2209,7 @@ function App() {
       title: mode === "tension" ? "Tension Board 2 Projects" : "Gym Project Boulders",
       color: C.yellow
     }, [1, 2, 3, 4, 5, 6].map(function (p) {
-      var pk = "s-".concat(mode, "-").concat(p),
+      var pk = "s-" + mode + "-" + p,
         pd = g(pk),
         up = function up(k, v) {
           return s(pk, _objectSpread(_objectSpread({}, pd), {}, _defineProperty({}, k, v)));
@@ -2154,7 +2221,7 @@ function App() {
           borderRadius: 7,
           padding: "8px 10px",
           marginBottom: 4,
-          borderLeft: "3px solid ".concat(C.yellow)
+          borderLeft: "3px solid " + C.yellow
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
@@ -2227,7 +2294,7 @@ function App() {
       title: "Outdoor Climbing",
       color: C.yellow
     }, [1, 2, 3, 4, 5, 6, 7, 8].map(function (p) {
-      var pk = "s-out-".concat(p),
+      var pk = "s-out-" + p,
         pd = g(pk),
         up = function up(k, v) {
           return s(pk, _objectSpread(_objectSpread({}, pd), {}, _defineProperty({}, k, v)));
@@ -2239,7 +2306,7 @@ function App() {
           borderRadius: 7,
           padding: "8px 10px",
           marginBottom: 4,
-          borderLeft: "3px solid ".concat(C.yellow)
+          borderLeft: "3px solid " + C.yellow
         }
       }, /*#__PURE__*/React.createElement("div", {
         style: {
@@ -2302,14 +2369,14 @@ function App() {
       title: "Post-Climbing: Max BW Pull-ups",
       color: C.yellow
     }, [1, 2].map(function (i) {
-      var ek = "s-post-".concat(i),
+      var ek = "s-post-" + i,
         ed = g(ek),
         up = function up(k, v) {
           return s(ek, _objectSpread(_objectSpread({}, ed), {}, _defineProperty({}, k, v)));
         };
       return /*#__PURE__*/React.createElement(ExCard, {
         key: i,
-        label: "Set ".concat(i),
+        label: "Set " + i,
         rx: "Max BW reps",
         timer: /*#__PURE__*/React.createElement(Timer, {
           seconds: 180,
