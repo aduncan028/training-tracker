@@ -387,13 +387,13 @@ function App(){
             <button onClick={()=>s("legSwap",false)} style={{flex:1,padding:"5px 0",borderRadius:5,border:`1px solid ${!showLegA?C.purple:C.border}`,background:!showLegA?C.purple:"transparent",color:!showLegA?C.white:C.muted,fontSize:10,fontWeight:700,cursor:"pointer"}}>Squat + SLDL</button>
             <button onClick={()=>s("legSwap",null)} style={{padding:"5px 8px",borderRadius:5,border:`1px solid ${C.border}`,background:"transparent",color:C.muted,fontSize:9,cursor:"pointer"}}>Auto</button>
           </div>
-          {showLegA?[
+          {(showLegA?[
             {name:"Deadlift",rx:"3×5",load:"135",rest:180},
             {name:"Bulgarian Split Squat",rx:"3×8 ea",load:"BW",rest:120},
           ]:[
             {name:"Back Squat",rx:"3×8-10",load:"95",rest:150},
             {name:"Straight Leg Deadlift",rx:"3×8-10",load:"95",rest:150},
-          ].map((ex,i)=>{
+          ]).map((ex,i)=>{
             const ek=`t-legs-${showLegA?"a":"b"}-${i}`,ed=g(ek),up=(k,v)=>s(ek,{...ed,[k]:v});
             return <LiftRow key={`${showLegA}-${i}`} name={ex.name} setsCount={3} prescribed={ex.rx} defaultLoad={ex.load} rest={ex.rest} data={ed} update={up} color={C.purple}/>;
           })}
