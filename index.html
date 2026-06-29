@@ -124,7 +124,7 @@ function isDeload(wk) {
 }
 
 /* Block pull progression tables (Phase 1, per hand) */
-function getBlockPullProg(baseLoad, viewWeekNum) {
+function getBlockPullProg(baseLoad, weekNum) {
   var w = Math.min(weekNum, 5);
   var progs = [{
     wk: 1,
@@ -167,7 +167,7 @@ function getBlockPullProg(baseLoad, viewWeekNum) {
     load: Math.round(baseLoad * p.pct / 2.5) * 2.5
   });
 }
-function getWPullProg(baseLoad, viewWeekNum) {
+function getWPullProg(baseLoad, weekNum) {
   var w = Math.min(weekNum, 5);
   var progs = [{
     wk: 1,
@@ -2399,7 +2399,4 @@ function App() {
     })));
   }()));
 }
-ReactDOM.render(/*#__PURE__*/React.createElement(App, null), document.getElementById("root"));</script>
-<script>if("serviceWorker"in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});</script>
-</body>
-</html>
+ReactDOM.render(/*#__PURE__*/React.createElement(App, null), document.getElementById("root"));</script><script>if("serviceWorker"in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});</script></body></html>
